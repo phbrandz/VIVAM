@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVAM HOSTING • Gerador de Apps PWA & Players para Rádios</title>
+  <title>VIVAM HOSTING • Plataforma Master de Criação de Apps para Rádios</title>
   <link rel="icon" href="assets/logo_original.png" type="image/png">
   
   <!-- Fonts & Icons -->
@@ -11,6 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- JSZip para gerar pacotes ZIP completos em 1 clique -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <style>
     :root {
@@ -260,7 +263,209 @@
       transform: translateY(-1px);
     }
 
-    /* WORKSPACE: FORM (LEFT) + SMARTPHONE SIMULATOR & EMBED (RIGHT) */
+    /* ==========================================================================
+       VIEW: DASHBOARD MASTER (ESTATÍSTICAS & LISTA DE CLIENTES)
+       ========================================================================== */
+    .dashboard-view-container {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .metrics-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 1024px) {
+      .metrics-grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    .metric-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .metric-icon-box {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .metric-val {
+      font-size: 24px;
+      font-weight: 800;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #fff;
+      line-height: 1.1;
+    }
+    .metric-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Quick Action Banner */
+    .saas-hero-banner {
+      background: linear-gradient(135deg, rgba(255, 145, 0, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%);
+      border: 1px solid rgba(255, 145, 0, 0.25);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .hero-banner-text h2 {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .hero-banner-text p {
+      font-size: 13px;
+      color: var(--text-soft);
+      max-width: 650px;
+      line-height: 1.5;
+    }
+
+    /* Clients Table Card */
+    .dashboard-table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+    }
+    .table-header-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .table-title {
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .client-apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
+    }
+    .client-card-item {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: all 0.2s;
+    }
+    .client-card-item:hover {
+      border-color: rgba(255, 145, 0, 0.4);
+      box-shadow: 0 8px 24px rgba(255, 145, 0, 0.1);
+    }
+    .client-card-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .client-logo-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #000;
+      border: 1px solid var(--border-subtle);
+    }
+    .client-meta h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .client-meta p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .client-credentials-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+    .cred-tag {
+      font-family: 'JetBrains Mono', monospace;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .client-card-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .btn-client-action {
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-client-action:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .btn-client-wpp {
+      background: rgba(37, 211, 102, 0.12);
+      border-color: rgba(37, 211, 102, 0.3);
+      color: #4ade80;
+    }
+    .btn-client-wpp:hover {
+      background: #25d366;
+      color: #000;
+    }
+    .btn-client-zip {
+      background: rgba(255, 145, 0, 0.12);
+      border-color: rgba(255, 145, 0, 0.35);
+      color: var(--accent-orange);
+    }
+    .btn-client-zip:hover {
+      background: var(--accent-orange);
+      color: #000;
+    }
+
+    /* ==========================================================================
+       VIEW: BUILDER (O FORMULÁRIO COM SMARTPHONE AO VIVO)
+       ========================================================================== */
     .saas-workspace {
       display: grid;
       grid-template-columns: minmax(440px, 1fr) minmax(440px, 1.05fr);
@@ -268,16 +473,10 @@
       padding: 24px 28px;
       align-items: start;
     }
-
     @media (max-width: 1200px) {
-      .saas-workspace {
-        grid-template-columns: 1fr;
-      }
+      .saas-workspace { grid-template-columns: 1fr; }
     }
 
-    /* ==========================================================================
-       LEFT COLUMN: FORM CONFIGURATION CARD & TABS
-       ========================================================================== */
     .config-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -287,7 +486,6 @@
       overflow: hidden;
     }
 
-    /* Tabs Bar inside Card */
     .config-tabs-nav {
       display: flex;
       overflow-x: auto;
@@ -329,20 +527,8 @@
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Form Fields */
-    .form-group {
-      margin-bottom: 16px;
-    }
-    .form-row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .form-row-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-    }
+    .form-group { margin-bottom: 16px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .field-label {
       display: flex;
       align-items: center;
@@ -376,18 +562,9 @@
       border-color: var(--accent-orange);
       box-shadow: 0 0 0 2px rgba(255, 145, 0, 0.2);
     }
-    .field-textarea {
-      resize: vertical;
-      min-height: 68px;
-    }
+    .field-textarea { resize: vertical; min-height: 68px; }
 
-    /* Upload Box with Preview */
-    .file-upload-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 6px;
-    }
+    .file-upload-row { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
     .upload-preview-thumb {
       width: 52px;
       height: 52px;
@@ -416,12 +593,7 @@
     }
 
     /* Template Cards Picker */
-    .template-selector-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+    .template-selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
     .template-card {
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
@@ -429,7 +601,6 @@
       background: rgba(0, 0, 0, 0.3);
       cursor: pointer;
       transition: all 0.2s;
-      position: relative;
     }
     .template-card.active {
       border-color: var(--accent-orange);
@@ -444,13 +615,9 @@
       align-items: center;
       justify-content: space-between;
     }
-    .template-card p {
-      font-size: 10px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
+    .template-card p { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
 
-    /* Grade de Programação Editor Item */
+    /* Grade de Programação */
     .schedule-row-item {
       display: grid;
       grid-template-columns: 70px 70px 1fr 1fr 34px;
@@ -475,30 +642,10 @@
       justify-content: center;
       transition: all 0.2s;
     }
-    .btn-icon-del:hover {
-      background: #ef4444;
-      color: #fff;
-    }
+    .btn-icon-del:hover { background: #ef4444; color: #fff; }
 
-    /* Banners de Anunciantes Item */
-    .sponsor-card-row {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-
-    /* ==========================================================================
-       RIGHT COLUMN: SMARTPHONE SIMULATOR & EMBED CODE DECK
-       ========================================================================== */
-    .preview-column {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* Smartphone Frame Realista */
+    /* PREVIEW & SMARTPHONE SIMULATOR */
+    .preview-column { display: flex; flex-direction: column; gap: 20px; }
     .simulator-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -509,7 +656,6 @@
       align-items: center;
       position: relative;
     }
-
     .simulator-top-toolbar {
       width: 100%;
       display: flex;
@@ -549,8 +695,6 @@
       overflow: hidden;
       border: 6px solid #000;
     }
-
-    /* Dynamic Island */
     .dynamic-island {
       position: absolute;
       top: 10px;
@@ -566,27 +710,9 @@
       justify-content: space-between;
       padding: 0 8px;
     }
-    .island-camera {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #111a28;
-    }
-    .island-sensor {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #0a0e17;
-    }
-
-    /* Iframe running the live player */
-    .simulator-iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: #000;
-      display: block;
-    }
+    .island-camera { width: 9px; height: 9px; border-radius: 50%; background: #111a28; }
+    .island-sensor { width: 7px; height: 7px; border-radius: 50%; background: #0a0e17; }
+    .simulator-iframe { width: 100%; height: 100%; border: none; background: #000; display: block; }
 
     /* EMBED & EXPORT PANEL */
     .export-box-card {
@@ -604,11 +730,7 @@
       align-items: center;
       justify-content: space-between;
     }
-    .code-tabs-nav {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
+    .code-tabs-nav { display: flex; gap: 6px; margin-bottom: 12px; }
     .code-tab-btn {
       padding: 6px 12px;
       background: rgba(255, 255, 255, 0.05);
@@ -619,11 +741,7 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .code-tab-btn.active {
-      background: var(--accent-orange);
-      color: #000;
-      border-color: var(--accent-orange);
-    }
+    .code-tab-btn.active { background: var(--accent-orange); color: #000; border-color: var(--accent-orange); }
     .code-display-pre {
       background: rgba(0, 0, 0, 0.6);
       border: 1px solid var(--border-subtle);
@@ -669,70 +787,6 @@
     }
     .btn-action-dl:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.25); }
 
-    /* PLAYERS SALVOS DRAWER / MODAL */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      z-index: 99;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-backdrop.open { display: flex; }
-    .modal-window {
-      background: #0f1423;
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      width: 90%;
-      max-width: 650px;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
-      overflow: hidden;
-    }
-    .modal-header {
-      padding: 18px 24px;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .modal-body {
-      padding: 20px 24px;
-      overflow-y: auto;
-      flex: 1;
-    }
-    .saved-player-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      margin-bottom: 10px;
-      transition: all 0.2s;
-    }
-    .saved-player-row:hover {
-      background: rgba(255, 145, 0, 0.06);
-      border-color: rgba(255, 145, 0, 0.3);
-    }
-    .saved-player-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .saved-player-img {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      object-fit: cover;
-      background: #000;
-    }
-
     /* TOAST FEEDBACK */
     .builder-toast {
       position: fixed;
@@ -755,11 +809,7 @@
       pointer-events: none;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .builder-toast.show {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
+    .builder-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
   </style>
 </head>
 <body>
@@ -778,20 +828,22 @@
       </div>
       <div class="sidebar-brand-text">
         <h2>VIVAM HOSTING</h2>
-        <span>App Stream Builder</span>
+        <span>Master SaaS Builder</span>
       </div>
     </div>
 
     <nav class="sidebar-menu">
-      <div class="menu-group-label">Principal</div>
-      <a class="sidebar-link active" onclick="switchMainView('builder')">
+      <div class="menu-group-label">Painel Master</div>
+      <a class="sidebar-link active" id="nav-btn-dashboard" onclick="switchMainView('dashboard')">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Dashboard Geral</span>
+      </a>
+      <a class="sidebar-link" id="nav-btn-builder" onclick="switchMainView('builder')">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span>Gerador de Apps</span>
+        <span>Criador de Apps</span>
       </a>
-      <a class="sidebar-link" onclick="abrirModalPlayersSalvos()">
-        <i class="fa-solid fa-layer-group"></i>
-        <span>Rádios Salvas (<span id="count-saved-players">1</span>)</span>
-      </a>
+
+      <div class="menu-group-label" style="margin-top: 14px;">Links Rápidos</div>
       <a class="sidebar-link" href="index.html" target="_blank">
         <i class="fa-solid fa-circle-play"></i>
         <span>Ver Rádio Vivam</span>
@@ -815,10 +867,10 @@
 
     <div class="sidebar-footer">
       <div>
-        <div style="font-weight: 700; color: #fff;">v3.0 Ultra Pro</div>
-        <div>Modo Autônomo</div>
+        <div style="font-weight: 700; color: #fff;">VIVAM HOSTING</div>
+        <div>Painel Master v3.5</div>
       </div>
-      <span class="status-badge">Ativo</span>
+      <span class="status-badge">Operacional</span>
     </div>
   </aside>
 
@@ -830,16 +882,16 @@
     <!-- TOPBAR -->
     <header class="saas-topbar">
       <div class="topbar-title-box">
-        <h1>
-          <span>Gerador de Apps PWA & Players</span>
-          <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(255,145,0,0.15); color: var(--accent-orange); font-weight: 700;">PRO</span>
+        <h1 id="main-view-title">
+          <span>Dashboard Geral • VIVAM HOSTING</span>
+          <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(255,145,0,0.15); color: var(--accent-orange); font-weight: 700;">ADMIN MASTER</span>
         </h1>
-        <p>Crie, personalize e exporte aplicativos com equalizador radial 360° e painel administrativo para qualquer rádio.</p>
+        <p id="main-view-sub">Gerencie todos os aplicativos de transmissão de áudio, TV e painéis de clientes criados.</p>
       </div>
 
       <div class="topbar-actions">
         <button class="btn-top btn-top-outline" onclick="novoPlayer()">
-          <i class="fa-solid fa-plus"></i> Novo Player
+          <i class="fa-solid fa-plus"></i> Novo App de Rádio
         </button>
         <button class="btn-top btn-top-primary" onclick="salvarPlayerAtual()">
           <i class="fa-solid fa-floppy-disk"></i> Salvar Rádio
@@ -847,8 +899,88 @@
       </div>
     </header>
 
-    <!-- WORKSPACE -->
-    <section class="saas-workspace">
+    <!-- ========================================================================
+         VIEW 1: DASHBOARD MASTER
+         ======================================================================== -->
+    <section class="dashboard-view-container" id="view-dashboard">
+
+      <!-- Metrics Grid -->
+      <div class="metrics-grid-4">
+        <div class="metric-stat-card">
+          <div class="metric-icon-box" style="background: rgba(255,145,0,0.15); color: var(--accent-orange);">
+            <i class="fa-solid fa-tower-broadcast"></i>
+          </div>
+          <div>
+            <div class="metric-val" id="metric-total-radios">1</div>
+            <div class="metric-lbl">Apps Criados</div>
+          </div>
+        </div>
+
+        <div class="metric-stat-card">
+          <div class="metric-icon-box" style="background: rgba(56,189,248,0.15); color: #38bdf8;">
+            <i class="fa-solid fa-headphones"></i>
+          </div>
+          <div>
+            <div class="metric-val" id="metric-audio-streams">1</div>
+            <div class="metric-lbl">Streams de Áudio</div>
+          </div>
+        </div>
+
+        <div class="metric-stat-card">
+          <div class="metric-icon-box" style="background: rgba(139,92,246,0.15); color: #c084fc;">
+            <i class="fa-solid fa-tv"></i>
+          </div>
+          <div>
+            <div class="metric-val" id="metric-tv-streams">1</div>
+            <div class="metric-lbl">Canais de TV / Vídeo</div>
+          </div>
+        </div>
+
+        <div class="metric-stat-card">
+          <div class="metric-icon-box" style="background: rgba(16,185,129,0.15); color: #34d399;">
+            <i class="fa-solid fa-users-gear"></i>
+          </div>
+          <div>
+            <div class="metric-val" id="metric-active-clients">1</div>
+            <div class="metric-lbl">Painéis de Clientes</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Hero Banner -->
+      <div class="saas-hero-banner">
+        <div class="hero-banner-text">
+          <h2>🚀 Criar Novo Aplicativo de Transmissão de Áudio & TV</h2>
+          <p>
+            Gere aplicativos PWA ultra-rápidos com equalizador radial 360°, logo estática no centro, transmissão ao vivo e um <strong>Painel Administrativo com Login e Senha</strong> exclusivo para o seu cliente gerenciar as próprias fotos e PIX.
+          </p>
+        </div>
+        <button class="btn-top btn-top-primary" style="padding: 12px 20px; font-size: 13px; white-space: nowrap;" onclick="novoPlayer()">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Abrir Criador de Apps
+        </button>
+      </div>
+
+      <!-- Clients Table Card -->
+      <div class="dashboard-table-card">
+        <div class="table-header-line">
+          <div class="table-title">
+            <i class="fa-solid fa-layer-group" style="color: var(--accent-orange);"></i>
+            <span>Aplicativos & Clientes Armazenados</span>
+          </div>
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;" id="table-clients-count">1 Rádio Cadastrada</span>
+        </div>
+
+        <div class="client-apps-grid" id="dashboard-clients-grid">
+          <!-- Renderizado dinamicamente via JavaScript -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================
+         VIEW 2: BUILDER (O FORMULÁRIO COM O SMARTPHONE AO VIVO)
+         ======================================================================== -->
+    <section class="saas-workspace" id="view-builder" style="display: none;">
 
       <!-- ====================================================================
            LEFT COLUMN: FORMULÁRIO DE CONFIGURAÇÃO (ABAS)
@@ -858,7 +990,10 @@
         <!-- Tabs Navigation -->
         <nav class="config-tabs-nav">
           <button class="cfg-tab-btn active" onclick="switchConfigTab('tab-station')">
-            <i class="fa-solid fa-tower-broadcast"></i> Identidade & Áudio
+            <i class="fa-solid fa-tower-broadcast"></i> Rádio & Streams
+          </button>
+          <button class="cfg-tab-btn" onclick="switchConfigTab('tab-auth')">
+            <i class="fa-solid fa-key"></i> Acesso do Cliente
           </button>
           <button class="cfg-tab-btn" onclick="switchConfigTab('tab-style')">
             <i class="fa-solid fa-palette"></i> Design & Cores
@@ -870,7 +1005,7 @@
             <i class="fa-solid fa-share-nodes"></i> Redes & WhatsApp
           </button>
           <button class="cfg-tab-btn" onclick="switchConfigTab('tab-promo')">
-            <i class="fa-solid fa-gift"></i> Promoções & Banners
+            <i class="fa-solid fa-gift"></i> Promoções
           </button>
           <button class="cfg-tab-btn" onclick="switchConfigTab('tab-sched')">
             <i class="fa-solid fa-calendar-days"></i> Grade
@@ -885,7 +1020,7 @@
               <input type="text" class="field-input" id="cfg-station-name" value="Rádio Vivam" oninput="liveUpdatePlayer()">
             </div>
             <div class="form-group">
-              <label class="field-label">Frequência / Tag</label>
+              <label class="field-label">Tipo de Rádio / Frequência</label>
               <input type="text" class="field-input" id="cfg-station-freq" value="Rádio Web" oninput="liveUpdatePlayer()">
             </div>
           </div>
@@ -946,7 +1081,40 @@
           </div>
         </div>
 
-        <!-- TAB 2: DESIGN & CORES -->
+        <!-- TAB 2: ACESSO DO CLIENTE (LOGIN & SENHA) -->
+        <div class="config-tab-panel" id="tab-auth">
+          <div style="background: rgba(255, 145, 0, 0.08); border: 1px solid rgba(255, 145, 0, 0.25); border-radius: 12px; padding: 14px; margin-bottom: 18px;">
+            <h4 style="font-size: 13px; color: var(--accent-orange); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-shield-halved"></i> Credenciais para o Cliente Acessar o Painel
+            </h4>
+            <p style="font-size: 11px; color: var(--text-soft); line-height: 1.5;">
+              Defina o usuário e a senha que o seu cliente usará para entrar no painel administrativo dele e alterar as próprias fotos, campanhas e grade da rádio.
+            </p>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="field-label">Usuário de Login do Cliente</label>
+              <input type="text" class="field-input" id="cfg-client-user" value="admin" placeholder="ex: radio_vivam">
+            </div>
+            <div class="form-group">
+              <label class="field-label">Senha de Acesso do Cliente</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" class="field-input" id="cfg-client-pass" value="vivam123" placeholder="Senha de acesso">
+                <button class="upload-btn-label" onclick="gerarSenhaForteCliente()" title="Gerar Senha Aleatória">
+                  <i class="fa-solid fa-shuffle"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-top btn-top-outline" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="copiarMensagemWhatsAppAtual()">
+            <i class="fa-brands fa-whatsapp" style="color: #4ade80;"></i>
+            <span>Copiar Mensagem Pronta de Acesso para Enviar no WhatsApp do Cliente</span>
+          </button>
+        </div>
+
+        <!-- TAB 3: DESIGN & CORES -->
         <div class="config-tab-panel" id="tab-style">
           <div class="form-group">
             <label class="field-label">Modelo de Player (Template)</label>
@@ -989,7 +1157,7 @@
             <div class="form-group">
               <label class="field-label">Comportamento da Logo Central</label>
               <select class="field-select" id="cfg-logo-spin" onchange="liveUpdatePlayer()">
-                <option value="false" selected>Estática & Fixa (Sem Girar)</option>
+                <option value="false" selected>Estática & Fixa (Sem Girar - Conforme solicitado)</option>
                 <option value="true">Girar como Disco de Vinil</option>
               </select>
             </div>
@@ -1003,7 +1171,7 @@
           </div>
         </div>
 
-        <!-- TAB 3: DOAÇÃO & PIX -->
+        <!-- TAB 4: DOAÇÃO & PIX -->
         <div class="config-tab-panel" id="tab-pix">
           <div class="form-group">
             <label class="field-label">Título da Campanha / Projeto</label>
@@ -1049,11 +1217,11 @@
           </div>
         </div>
 
-        <!-- TAB 4: REDES & WHATSAPP -->
+        <!-- TAB 5: REDES & WHATSAPP -->
         <div class="config-tab-panel" id="tab-contacts">
           <div class="form-row-2">
             <div class="form-group">
-              <label class="field-label">WhatsApp (Número Completo)</label>
+              <label class="field-label">WhatsApp (Número Completo com DDD)</label>
               <input type="text" class="field-input" id="cfg-wpp-num" value="5564992432520" placeholder="ex: 5564992432520" oninput="liveUpdatePlayer()">
             </div>
             <div class="form-group">
@@ -1078,7 +1246,7 @@
           </div>
         </div>
 
-        <!-- TAB 5: PROMOÇÕES & BANNERS -->
+        <!-- TAB 6: PROMOÇÕES -->
         <div class="config-tab-panel" id="tab-promo">
           <div class="form-group">
             <label class="field-label">
@@ -1107,7 +1275,7 @@
           </div>
         </div>
 
-        <!-- TAB 6: GRADE DE PROGRAMAÇÃO -->
+        <!-- TAB 7: GRADE DE PROGRAMAÇÃO -->
         <div class="config-tab-panel" id="tab-sched">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <span style="font-size: 12px; font-weight: 700; color: var(--text-soft);">Horários e Programas do Dia:</span>
@@ -1117,7 +1285,7 @@
           </div>
 
           <div id="schedule-builder-list">
-            <!-- Gerado dinamicamente -->
+            <!-- Gerado dinamicamente via JS -->
           </div>
         </div>
 
@@ -1159,26 +1327,33 @@
         <!-- Embed & Code Deck -->
         <div class="export-box-card">
           <div class="export-title">
-            <span><i class="fa-solid fa-code" style="color: var(--accent-orange);"></i> Código para Hospedagem / Embed</span>
-            <span style="font-size: 10px; color: var(--accent-green); font-weight: 700;">100% AUTO-CONTIDO</span>
+            <span><i class="fa-solid fa-box-archive" style="color: var(--accent-orange);"></i> Pacote do Aplicativo para o Cliente</span>
+            <span style="font-size: 10px; color: var(--accent-green); font-weight: 700;">100% COMPLETO</span>
           </div>
 
           <div class="code-tabs-nav">
-            <button class="code-tab-btn active" id="btn-tab-iframe" onclick="switchCodeTab('iframe')">Iframe Responsivo</button>
+            <button class="code-tab-btn active" id="btn-tab-iframe" onclick="switchCodeTab('iframe')">Iframe Embed</button>
             <button class="code-tab-btn" id="btn-tab-html" onclick="switchCodeTab('html')">HTML5 Completo</button>
           </div>
 
           <pre class="code-display-pre" id="code-snippet-box">&lt;!-- Carregando código... --&gt;</pre>
 
-          <div class="export-actions-grid">
-            <button class="btn-action-main btn-action-copy" onclick="copiarCodigoAtual()">
-              <i class="fa-regular fa-copy"></i>
-              <span id="btn-copy-label">Copiar Código</span>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button class="btn-action-main btn-action-copy" style="width: 100%;" onclick="baixarPacoteZipCompleto()">
+              <i class="fa-solid fa-file-zipper"></i>
+              <span>Baixar Pacote Completo do Cliente (.ZIP com Player + Admin)</span>
             </button>
-            <button class="btn-action-main btn-action-dl" onclick="baixarArquivoHtmlPronto()">
-              <i class="fa-solid fa-download"></i>
-              <span>Baixar index.html</span>
-            </button>
+
+            <div class="export-actions-grid">
+              <button class="btn-action-main btn-action-dl" onclick="baixarArquivoHtmlPronto()">
+                <i class="fa-solid fa-download"></i>
+                <span>Baixar index.html</span>
+              </button>
+              <button class="btn-action-main btn-action-dl" onclick="copiarCodigoAtual()">
+                <i class="fa-regular fa-copy"></i>
+                <span id="btn-copy-label">Copiar Código</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1188,25 +1363,6 @@
 
   </main>
 
-  <!-- ==========================================================================
-       MODAL: RÁDIOS SALVAS NO BANCO / LOCALSTORAGE
-       ========================================================================== -->
-  <div class="modal-backdrop" id="modal-saved-players" onclick="fecharModalOnBackdrop(event)">
-    <div class="modal-window">
-      <div class="modal-header">
-        <h3 style="font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-layer-group" style="color: var(--accent-orange);"></i>
-          <span>Rádios & Clientes Salvos</span>
-        </h3>
-        <button class="btn-icon-del" style="background: none; border: none; color: #fff; font-size: 16px;" onclick="fecharModalPlayersSalvos()">✕</button>
-      </div>
-
-      <div class="modal-body" id="saved-players-list-container">
-        <!-- Preenchido via JavaScript -->
-      </div>
-    </div>
-  </div>
-
   <!-- TOAST FEEDBACK -->
   <div class="builder-toast" id="builder-toast">
     <i class="fa-solid fa-circle-check" style="color: var(--accent-orange);"></i>
@@ -1214,10 +1370,10 @@
   </div>
 
   <!-- ==========================================================================
-       LOGIC: TEMPLATE GENERATOR ENGINE + LOCALSTORAGE REPO
+       LOGIC: MASTER SAAS ENGINE + ZIP PACKAGER + REPO
        ========================================================================== -->
   <script>
-    // ── Global State ──
+    let currentMainView = 'dashboard';
     let currentSelectedTemplate = 'cockpit';
     let currentEditingPlayerId = 'default_vivam';
     let scheduleList = [
@@ -1231,24 +1387,57 @@
     let currentCodeSnippetTab = 'iframe';
     let updateTimer = null;
     let baseIndexHtmlTemplate = '';
+    let baseAdminHtmlTemplate = '';
 
-    // ── Load base template and init ──
+    // ── Start ──
     window.addEventListener('DOMContentLoaded', async () => {
       renderScheduleBuilderRows();
-      atualizarContadorPlayers();
+      atualizarDashboardStats();
 
-      // Fetch base index.html template
+      // Carregar templates base
       try {
-        const resp = await fetch('index.html');
-        baseIndexHtmlTemplate = await resp.text();
-      } catch (e) {
-        console.warn('Erro ao carregar template base index.html:', e);
-      }
+        const respIdx = await fetch('index.html');
+        baseIndexHtmlTemplate = await respIdx.text();
+      } catch (e) { console.warn(e); }
+
+      try {
+        const respAdm = await fetch('admin.html');
+        baseAdminHtmlTemplate = await respAdm.text();
+      } catch (e) { console.warn(e); }
 
       liveUpdatePlayer();
     });
 
-    // ── Tab Switching ──
+    // ── Navigation between Dashboard Master and Builder ──
+    function switchMainView(view) {
+      currentMainView = view;
+      const vDash = document.getElementById('view-dashboard');
+      const vBuild = document.getElementById('view-builder');
+      const btnDash = document.getElementById('nav-btn-dashboard');
+      const btnBuild = document.getElementById('nav-btn-builder');
+      const title = document.getElementById('main-view-title');
+      const sub = document.getElementById('main-view-sub');
+
+      if (view === 'dashboard') {
+        vDash.style.display = 'flex';
+        vBuild.style.display = 'none';
+        btnDash.classList.add('active');
+        btnBuild.classList.remove('active');
+        title.innerHTML = `<span>Dashboard Geral • VIVAM HOSTING</span> <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(255,145,0,0.15); color: var(--accent-orange); font-weight: 700;">ADMIN MASTER</span>`;
+        sub.textContent = 'Gerencie todos os aplicativos de transmissão de áudio, TV e painéis de clientes criados.';
+        atualizarDashboardStats();
+      } else {
+        vDash.style.display = 'none';
+        vBuild.style.display = 'grid';
+        btnDash.classList.remove('active');
+        btnBuild.classList.add('active');
+        title.innerHTML = `<span>Criador de Apps PWA & Players</span> <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(255,145,0,0.15); color: var(--accent-orange); font-weight: 700;">PRO</span>`;
+        sub.textContent = 'Crie, personalize e exporte aplicativos com equalizador radial 360° e painel administrativo para qualquer rádio.';
+        liveUpdatePlayer();
+      }
+    }
+
+    // ── Tab Switching inside Builder ──
     function switchConfigTab(tabId) {
       document.querySelectorAll('.config-tab-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.cfg-tab-btn').forEach(b => b.classList.remove('active'));
@@ -1267,11 +1456,24 @@
       liveUpdatePlayer();
     }
 
+    // ── Generate Strong Password ──
+    function gerarSenhaForteCliente() {
+      const chars = 'abcdefghjkmnpqrstuvwxyz23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+      let pass = '';
+      for (let i = 0; i < 8; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+      document.getElementById('cfg-client-pass').value = pass;
+      showToast('Nova senha gerada!');
+    }
+
     // ── Data Gathering ──
     function coletarDadosAtuais() {
       return {
         id: currentEditingPlayerId,
         template: currentSelectedTemplate,
+        auth: {
+          user: document.getElementById('cfg-client-user').value.trim() || 'admin',
+          pass: document.getElementById('cfg-client-pass').value.trim() || 'vivam123'
+        },
         station: {
           name: document.getElementById('cfg-station-name').value.trim() || 'Rádio Vivam',
           frequency: document.getElementById('cfg-station-freq').value.trim() || 'Rádio Web',
@@ -1324,11 +1526,11 @@
 
       let html = baseIndexHtmlTemplate;
 
-      // 1. Inject Config directly into Head
+      // 1. Injetar Configuração completa
       const injection = `\n<script>window.VIVAM_INJECTED_CONFIG = ${JSON.stringify(cfg)};<\/script>\n`;
       html = html.replace('</head>', `${injection}</head>`);
 
-      // 2. Adjust Logo spin if specified
+      // 2. Ajustar Logo spin se selecionado
       if (cfg.style.logoSpin) {
         html = html.replace(
           'transform: none !important; /* Mantém a logo perfeitamente estática ao tocar */',
@@ -1340,11 +1542,20 @@
         );
       }
 
-      // 3. Adjust Accent Color
+      // 3. Ajustar Cor de Destaque
       if (cfg.style.accentColor && cfg.style.accentColor !== '#ff9100') {
         html = html.replace(/--accent-orange:\s*#[a-fA-F0-9]{6};/, `--accent-orange: ${cfg.style.accentColor};`);
       }
 
+      return html;
+    }
+
+    // ── Generate Admin HTML with Client Credentials Injected ──
+    function gerarAdminHtmlComAcesso(cfg) {
+      if (!baseAdminHtmlTemplate) return '';
+      let html = baseAdminHtmlTemplate;
+      const injection = `\n<script>window.VIVAM_INJECTED_CONFIG = ${JSON.stringify(cfg)};<\/script>\n`;
+      html = html.replace('</head>', `${injection}</head>`);
       return html;
     }
 
@@ -1355,11 +1566,9 @@
         const cfg = coletarDadosAtuais();
         const html = gerarPlayerHtmlCompleto(cfg);
 
-        // Update iframe via srcdoc
         const iframe = document.getElementById('preview-iframe');
         iframe.srcdoc = html;
 
-        // Update Code Snippets
         atualizarCodeSnippets(cfg, html);
       }, 150);
     }
@@ -1421,7 +1630,108 @@
       showToast(`Arquivo index.html da ${cfg.station.name} baixado pronto!`);
     }
 
-    // ── Image Upload (Convert to Base64 DataURL) ──
+    // ── BAIXAR PACOTE COMPLETO (.ZIP) COM JSZIP ──
+    async function baixarPacoteZipCompleto(targetConfig) {
+      const cfg = targetConfig || coletarDadosAtuais();
+      showToast('Compactando arquivos do cliente...');
+
+      const zip = new JSZip();
+
+      // 1. index.html (Player)
+      const playerHtml = gerarPlayerHtmlCompleto(cfg);
+      zip.file('index.html', playerHtml);
+
+      // 2. admin.html (Painel do Cliente com Login)
+      const adminHtml = gerarAdminHtmlComAcesso(cfg);
+      zip.file('admin.html', adminHtml);
+
+      // 3. config.json
+      zip.file('config.json', JSON.stringify(cfg, null, 2));
+
+      // 4. salvar_config.php (Backend opcional)
+      const phpCode = `<?php
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $input = file_get_contents('php://input');
+  if ($input && json_decode($input)) {
+    file_put_contents(__DIR__ . '/config.json', $input);
+    echo json_encode(['success' => true]);
+    exit;
+  }
+}
+?>`;
+      zip.file('salvar_config.php', phpCode);
+
+      // 5. INSTRUCOES_DE_ACESSO.txt
+      const txt = `=====================================================
+  APLICATIVO DE RÁDIO WEB • VIVAM HOSTING
+=====================================================
+
+Rádio: ${cfg.station.name}
+Slogan: ${cfg.station.slogan}
+Cidade: ${cfg.station.city}
+
+COMO USAR NA HOSPEDAGEM:
+1. Suba os arquivos (index.html, admin.html, config.json) na sua hospedagem.
+2. Seu aplicativo estará rodando em: seusite.com.br/index.html
+3. Seu painel de controle estará em: seusite.com.br/admin.html
+
+DADOS DE ACESSO DO PAINEL:
+- Usuário: ${cfg.auth.user}
+- Senha: ${cfg.auth.pass}
+
+No painel você poderá alterar a logomarca, foto de fundo,
+chave PIX e grade de horários a qualquer momento!
+`;
+      zip.file('INSTRUCOES_DE_ACESSO.txt', txt);
+
+      // Gerar e disparar download
+      const content = await zip.generateAsync({ type: 'blob' });
+      const sanitizedName = cfg.station.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(content);
+      link.download = `pacote_${sanitizedName}_vivamhosting.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast(`Pacote ZIP de "${cfg.station.name}" baixado com sucesso!`);
+    }
+
+    // ── Copiar Mensagem de Boas-Vindas no WhatsApp ──
+    function copiarMensagemWhatsApp(cfg) {
+      const msg = `📻 *SEU APLICATIVO DE RÁDIO ESTÁ PRONTO!* - _VIVAM HOSTING_
+
+Olá! Seguem os dados oficiais do seu aplicativo da *${cfg.station.name}*:
+
+▶️ *Link da Rádio (para os ouvintes):*
+https://seusite.com.br/index.html
+
+⚙️ *Painel de Controle Administrativo:*
+https://seusite.com.br/admin.html
+
+🔑 *Seus Dados de Acesso:*
+👤 *Usuário:* \`${cfg.auth.user}\`
+🔒 *Senha:* \`${cfg.auth.pass}\`
+
+No seu painel você pode trocar a logo, a foto de fundo, a chave PIX da campanha e a programação quando quiser!
+
+_VIVAM HOSTING • Criações de Apps PWA_`;
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(msg).then(() => {
+          showToast('Mensagem de WhatsApp copiada! Só colar na conversa.');
+        });
+      }
+    }
+
+    function copiarMensagemWhatsAppAtual() {
+      const cfg = coletarDadosAtuais();
+      copiarMensagemWhatsApp(cfg);
+    }
+
+    // ── Upload de Imagens ──
     function handleImageUpload(e, targetInputId, thumbImgId) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1437,7 +1747,7 @@
       reader.readAsDataURL(file);
     }
 
-    // ── Schedule Builder ──
+    // ── Grade de Programação Builder ──
     function renderScheduleBuilderRows() {
       const container = document.getElementById('schedule-builder-list');
       container.innerHTML = '';
@@ -1474,13 +1784,45 @@
       liveUpdatePlayer();
     }
 
-    // ── Players Storage Repository (CRUD Clientes) ──
+    // ── Repositório de Rádios Salvas (CRUD Master) ──
     function obterPlayersSalvos() {
       const raw = localStorage.getItem('vivam_saved_radios');
       if (raw) {
         try { return JSON.parse(raw); } catch (e) {}
       }
-      return [];
+      return [{
+        id: 'default_vivam',
+        template: 'cockpit',
+        auth: { user: 'admin', pass: 'vivam123' },
+        station: {
+          name: 'Rádio Vivam',
+          frequency: 'Rádio Web',
+          slogan: 'Vidas em Avivamento',
+          city: 'Caldas Novas / GO',
+          audioStreamUrl: 'https://stm4.audiplushd.com.br:7370/stream',
+          tvStreamUrl: 'https://stmv1.liveplushd.com.br/tvvivam/tvvivam/playlist.m3u8',
+          logoUrl: 'assets/logo_original.png',
+          backgroundUrl: 'assets/vivam_custom_bg.jpg'
+        },
+        donation: {
+          projectName: 'Projeto Bíblia Sagrada para Todos',
+          description: 'Ajude a Rádio Vivam a levar a Palavra de Deus e Bíblias para famílias que mais precisam.',
+          pixKeyType: 'Telefone / WhatsApp',
+          pixKey: '64992432520',
+          beneficiary: 'Rádio Vivam • Vidas em Avivamento',
+          qrCodeUrl: 'assets/pix_qr.svg'
+        },
+        contacts: {
+          whatsapp: '5564992432520',
+          whatsappDisplay: '(64) 99243-2520',
+          instagram: 'https://www.instagram.com/podcastdesafiosmissionarios/',
+          youtube: 'https://www.youtube.com/channel/UCCU71_q3RloX7rGLSUjCneg',
+          facebook: 'https://www.facebook.com/vidasemavivamento?locale=pt_BR'
+        },
+        style: { accentColor: '#ff9100', bgColor: '#000000', logoSpin: false, showVolume: true },
+        promotion: { active: true, title: 'Sorteio Especial Bíblia de Estudos', description: 'Participe mandando mensagem!', whatsappText: 'Quero participar!' },
+        schedule: scheduleList
+      }];
     }
 
     function salvarPlayerAtual() {
@@ -1496,7 +1838,7 @@
 
       localStorage.setItem('vivam_saved_radios', JSON.stringify(list));
       localStorage.setItem('vivam_config', JSON.stringify(cfg));
-      atualizarContadorPlayers();
+      atualizarDashboardStats();
       showToast(`Rádio "${cfg.station.name}" salva com sucesso!`);
     }
 
@@ -1507,19 +1849,29 @@
       document.getElementById('cfg-station-slogan').value = 'A Melhor Música No Ar';
       document.getElementById('cfg-station-city').value = 'Sua Cidade / UF';
       document.getElementById('cfg-audio-url').value = 'https://stm4.audiplushd.com.br:7370/stream';
+      document.getElementById('cfg-client-user').value = 'cliente_' + Math.floor(100 + Math.random() * 900);
+      gerarSenhaForteCliente();
+      
+      switchMainView('builder');
+      switchConfigTab('tab-station');
       liveUpdatePlayer();
-      showToast('Formulário pronto para nova rádio!');
+      showToast('Criador pronto para nova rádio!');
     }
 
-    function carregarPlayerPorId(id) {
+    function carregarPlayerParaEdicao(id) {
       const list = obterPlayersSalvos();
       const found = list.find(p => p.id === id);
       if (!found) return;
 
       currentEditingPlayerId = found.id;
+      if (found.auth) {
+        document.getElementById('cfg-client-user').value = found.auth.user || 'admin';
+        document.getElementById('cfg-client-pass').value = found.auth.pass || 'vivam123';
+      }
+
       if (found.station) {
         document.getElementById('cfg-station-name').value = found.station.name || '';
-        document.getElementById('cfg-station-freq').value = found.station.frequency || '';
+        document.getElementById('cfg-station-freq').value = found.station.frequency || 'Rádio Web';
         document.getElementById('cfg-station-slogan').value = found.station.slogan || '';
         document.getElementById('cfg-station-city').value = found.station.city || '';
         document.getElementById('cfg-audio-url').value = found.station.audioStreamUrl || '';
@@ -1546,69 +1898,81 @@
         renderScheduleBuilderRows();
       }
 
-      fecharModalPlayersSalvos();
+      switchMainView('builder');
       liveUpdatePlayer();
-      showToast(`Rádio "${found.station.name}" carregada!`);
+      showToast(`Rádio "${found.station.name}" carregada no criador!`);
     }
 
     function excluirPlayerPorId(id) {
       let list = obterPlayersSalvos();
-      list = list.filter(p => p.id !== id);
-      localStorage.setItem('vivam_saved_radios', JSON.stringify(list));
-      renderListaPlayersModal();
-      atualizarContadorPlayers();
-      showToast('Rádio removida da lista!');
-    }
-
-    function atualizarContadorPlayers() {
-      const list = obterPlayersSalvos();
-      const count = list.length || 1;
-      document.getElementById('count-saved-players').textContent = count;
-    }
-
-    // ── Modal Saved Players ──
-    function abrirModalPlayersSalvos() {
-      renderListaPlayersModal();
-      document.getElementById('modal-saved-players').classList.add('open');
-    }
-    function fecharModalPlayersSalvos() {
-      document.getElementById('modal-saved-players').classList.remove('open');
-    }
-    function fecharModalOnBackdrop(e) {
-      if (e.target.id === 'modal-saved-players') fecharModalPlayersSalvos();
-    }
-
-    function renderListaPlayersModal() {
-      const container = document.getElementById('saved-players-list-container');
-      const list = obterPlayersSalvos();
-
-      if (list.length === 0) {
-        container.innerHTML = `
-          <div style="text-align:center; padding: 40px 20px; color: var(--text-muted);">
-            <i class="fa-solid fa-layer-group" style="font-size: 32px; opacity: 0.3; margin-bottom: 12px;"></i>
-            <p>Nenhuma rádio salva ainda.</p>
-            <button class="btn-top btn-top-primary" style="margin-top: 14px;" onclick="salvarPlayerAtual(); fecharModalPlayersSalvos();">
-              Salvar Rádio Atual
-            </button>
-          </div>
-        `;
+      if (list.length <= 1) {
+        alert('Você deve manter pelo menos uma rádio cadastrada no sistema.');
         return;
       }
+      if (confirm('Tem certeza que deseja excluir esta rádio?')) {
+        list = list.filter(p => p.id !== id);
+        localStorage.setItem('vivam_saved_radios', JSON.stringify(list));
+        atualizarDashboardStats();
+        showToast('Rádio excluída com sucesso.');
+      }
+    }
 
-      container.innerHTML = list.map(item => `
-        <div class="saved-player-row">
-          <div class="saved-player-info">
-            <img src="${item.station.logoUrl || 'assets/logo_original.png'}" class="saved-player-img" onerror="this.src='assets/logo_modern_vivam.svg'">
-            <div>
-              <div style="font-size: 13px; font-weight: 800; color: #fff;">${item.station.name} • ${item.station.frequency}</div>
-              <div style="font-size: 11px; color: var(--text-muted);">${item.station.city} • ${item.donation.projectName || 'Sem campanha'}</div>
+    // ── Atualização do Dashboard Master ──
+    function atualizarDashboardStats() {
+      const list = obterPlayersSalvos();
+      document.getElementById('metric-total-radios').textContent = list.length;
+      document.getElementById('metric-audio-streams').textContent = list.filter(p => p.station.audioStreamUrl).length;
+      document.getElementById('metric-tv-streams').textContent = list.filter(p => p.station.tvStreamUrl).length;
+      document.getElementById('metric-active-clients').textContent = list.length;
+      document.getElementById('table-clients-count').textContent = `${list.length} Rádio(s) Cadastrada(s)`;
+
+      const grid = document.getElementById('dashboard-clients-grid');
+      grid.innerHTML = list.map(item => `
+        <div class="client-card-item">
+          <div class="client-card-top">
+            <img src="${item.station.logoUrl || 'assets/logo_original.png'}" class="client-logo-thumb" onerror="this.src='assets/logo_modern_vivam.svg'">
+            <div class="client-meta">
+              <h3>${item.station.name}</h3>
+              <p>${item.station.frequency || 'Rádio Web'} • ${item.station.city || 'Online'}</p>
             </div>
           </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-top btn-top-primary" style="padding: 6px 12px; font-size: 11px;" onclick="carregarPlayerPorId('${item.id}')">
-              Carregar
+
+          <div class="client-credentials-box">
+            <div>
+              <span style="color:var(--text-muted); font-size:10px; display:block;">LOGIN DO CLIENTE</span>
+              <span class="cred-tag">${item.auth ? item.auth.user : 'admin'}</span>
+            </div>
+            <div>
+              <span style="color:var(--text-muted); font-size:10px; display:block;">SENHA</span>
+              <span class="cred-tag">${item.auth ? item.auth.pass : 'vivam123'}</span>
+            </div>
+            <button class="upload-btn-label" style="padding:4px 8px; font-size:10px;" onclick="copiarMensagemWhatsApp(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+              <i class="fa-solid fa-copy"></i>
             </button>
-            <button class="btn-icon-del" onclick="excluirPlayerPorId('${item.id}')" title="Excluir">
+          </div>
+
+          <div class="client-card-actions">
+            <button class="btn-client-action btn-client-zip" onclick="baixarPacoteZipCompleto(${JSON.stringify(item).replace(/"/g, '&quot;')})" title="Baixar Pacote .ZIP do Cliente">
+              <i class="fa-solid fa-file-zipper"></i> Pacote ZIP
+            </button>
+
+            <button class="btn-client-action btn-client-wpp" onclick="copiarMensagemWhatsApp(${JSON.stringify(item).replace(/"/g, '&quot;')})" title="Copiar Dados para o WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i> Acesso WhatsApp
+            </button>
+
+            <button class="btn-client-action" onclick="carregarPlayerParaEdicao('${item.id}')" title="Editar no Criador">
+              <i class="fa-solid fa-pen-to-square"></i> Editar
+            </button>
+
+            <a href="index.html" target="_blank" class="btn-client-action" title="Abrir Player">
+              <i class="fa-solid fa-play"></i> Player
+            </a>
+
+            <a href="admin.html" target="_blank" class="btn-client-action" title="Abrir Painel do Cliente">
+              <i class="fa-solid fa-sliders"></i> Admin
+            </a>
+
+            <button class="btn-icon-del" style="width:28px; height:28px; margin-left:auto;" onclick="excluirPlayerPorId('${item.id}')" title="Excluir">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
@@ -1616,11 +1980,11 @@
       `).join('');
     }
 
-    // ── Backup Export / Import ──
+    // ── Backup JSON Export / Import ──
     function exportarBackupJSON() {
       const data = {
         app: 'VIVAM_HOSTING_PWA_BUILDER',
-        version: '3.0',
+        version: '3.5',
         exportedAt: new Date().toISOString(),
         radios: obterPlayersSalvos()
       };
@@ -1642,17 +2006,15 @@
           const json = JSON.parse(evt.target.result);
           if (json.radios && Array.isArray(json.radios)) {
             localStorage.setItem('vivam_saved_radios', JSON.stringify(json.radios));
-            atualizarContadorPlayers();
+            atualizarDashboardStats();
             showToast(`Sucesso! ${json.radios.length} rádios restauradas.`);
           }
-        } catch (err) {
-          alert('Arquivo JSON inválido!');
-        }
+        } catch (err) { alert('Arquivo JSON inválido!'); }
       };
       reader.readAsText(file);
     }
 
-    // ── Toast Notification ──
+    // ── Toast System ──
     let toastTimeout = null;
     function showToast(msg) {
       const t = document.getElementById('builder-toast');

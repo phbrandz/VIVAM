@@ -455,6 +455,39 @@
 </head>
 <body>
 
+  <!-- LOGIN OVERLAY DO CLIENTE (ÁREA PROTEGIDA POR SENHA) -->
+  <div id="client-login-overlay" style="position:fixed; inset:0; background:rgba(6,8,14,0.96); backdrop-filter:blur(24px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#120e0d; border:1px solid rgba(255,255,255,0.12); border-radius:20px; width:100%; max-width:400px; padding:32px 28px; box-shadow:0 25px 60px rgba(0,0,0,0.9); text-align:center;">
+      <div style="width:64px; height:64px; border-radius:16px; background:linear-gradient(135deg, #ff9100, #ea580c); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:26px; color:#000; box-shadow:0 8px 24px rgba(255,145,0,0.35);">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h2 style="font-size:18px; font-weight:800; color:#fff; margin-bottom:6px;">Área do Cliente • Login</h2>
+      <p style="font-size:12px; color:#9e9ea7; margin-bottom:24px;">Painel Administrativo da Rádio Web</p>
+
+      <div style="text-align:left; margin-bottom:14px;">
+        <label style="font-size:11px; font-weight:700; color:#cbd5e1; text-transform:uppercase; display:block; margin-bottom:6px;">Usuário</label>
+        <input type="text" id="login-username" class="field-input" placeholder="Digite seu usuário" style="width:100%; padding:12px; background:#080b14; border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; font-size:13px; outline:none;">
+      </div>
+
+      <div style="text-align:left; margin-bottom:20px;">
+        <label style="font-size:11px; font-weight:700; color:#cbd5e1; text-transform:uppercase; display:block; margin-bottom:6px;">Senha de Acesso</label>
+        <input type="password" id="login-password" class="field-input" placeholder="Digite sua senha" style="width:100%; padding:12px; background:#080b14; border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; font-size:13px; outline:none;" onkeydown="if(event.key==='Enter') executarLoginCliente()">
+      </div>
+
+      <div id="login-error-msg" style="display:none; color:#f87171; font-size:12px; margin-bottom:14px; font-weight:600;">
+        <i class="fa-solid fa-triangle-exclamation"></i> Usuário ou senha incorretos!
+      </div>
+
+      <button onclick="executarLoginCliente()" style="width:100%; padding:14px; border-radius:10px; background:linear-gradient(135deg, #ff9100, #ea580c); color:#000; font-weight:800; font-size:13px; border:none; cursor:pointer; box-shadow:0 4px 16px rgba(255,145,0,0.35); transition:all 0.2s;">
+        Entrar no Painel
+      </button>
+
+      <p style="font-size:11px; color:#63636e; margin-top:18px;">
+        Esqueceu o acesso? Solicite à equipe da VIVAM HOSTING.
+      </p>
+    </div>
+  </div>
+
   <!-- ADMIN SIDEBAR -->
   <aside class="admin-sidebar">
     <div>
@@ -512,6 +545,10 @@
         <i class="fa-solid fa-arrow-up-right-from-square"></i>
         <span>Ver Rádio ao Vivo</span>
       </a>
+      <button onclick="fazerLogoutCliente()" class="btn-view-live" style="background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); color: #f87171; margin-top: 8px; width: 100%; cursor: pointer;">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Sair do Painel</span>
+      </button>
       <p style="font-size: 10px; color: var(--text-dim); text-align: center;">
         Versão 3.0 • Rádio Vivam & VIVAMHOSTING
       </p>
@@ -811,6 +848,7 @@
         try {
           currentConfig = JSON.parse(saved);
           preencherCamposFormulario(currentConfig);
+          verificarSessaoCliente();
           return;
         } catch (e) { console.warn('Erro ao ler localStorage', e); }
       }
@@ -821,11 +859,49 @@
         .then(data => {
           currentConfig = data;
           preencherCamposFormulario(data);
+          verificarSessaoCliente();
         })
         .catch(err => {
           console.warn('Usando valores padrão:', err);
           montarGradePadrao();
+          verificarSessaoCliente();
         });
+    }
+
+    // ── Autenticação do Cliente (Login & Senha) ──
+    function verificarSessaoCliente() {
+      const auth = (currentConfig && currentConfig.auth) || { user: 'admin', pass: 'vivam123' };
+      const isLogged = sessionStorage.getItem('client_logged') === 'true';
+      const overlay = document.getElementById('client-login-overlay');
+      if (isLogged) {
+        if (overlay) overlay.style.display = 'none';
+      } else {
+        if (overlay) overlay.style.display = 'flex';
+      }
+    }
+
+    function executarLoginCliente() {
+      const u = document.getElementById('login-username').value.trim();
+      const p = document.getElementById('login-password').value.trim();
+      const auth = (currentConfig && currentConfig.auth) || { user: 'admin', pass: 'vivam123' };
+      const expectedUser = auth.user || 'admin';
+      const expectedPass = auth.pass || 'vivam123';
+
+      if (u === expectedUser && p === expectedPass) {
+        sessionStorage.setItem('client_logged', 'true');
+        document.getElementById('client-login-overlay').style.display = 'none';
+        document.getElementById('login-error-msg').style.display = 'none';
+        showToast('Login realizado com sucesso!');
+      } else {
+        const err = document.getElementById('login-error-msg');
+        err.style.display = 'block';
+      }
+    }
+
+    function fazerLogoutCliente() {
+      sessionStorage.removeItem('client_logged');
+      verificarSessaoCliente();
+      showToast('Você saiu do painel.');
     }
 
     function preencherCamposFormulario(cfg) {

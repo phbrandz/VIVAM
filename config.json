@@ -1,4 +1,8 @@
 {
+  "auth": {
+    "user": "admin",
+    "pass": "vivam123"
+  },
   "station": {
     "name": "Rádio Vivam",
     "frequency": "Rádio Web",
