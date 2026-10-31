@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Rádio Vivam • Rádio Web Ao Vivo</title>
+
+  <!-- Google Fonts: Inter & Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- HLS.js for Live TV Streaming -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <style>
+    /* ==========================================================================
+       STUDIO MASTER ARCHITECTURE (RADIAL EQUALIZER & MULTI-CORNER LAYOUT)
+       ========================================================================== */
+    :root {
+      --bg-pitch-black: #000000;
+      --bg-panel: rgba(16, 13, 12, 0.78);
+      --bg-panel-hover: rgba(28, 22, 20, 0.9);
+      --bg-card-subtle: rgba(255, 255, 255, 0.05);
+
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --glass-border-subtle: rgba(255, 255, 255, 0.07);
+
+      --accent-orange: #ff5500;
+      --accent-amber: #ff9100;
+      --accent-gold: #fbbf24;
+      --accent-glow: rgba(255, 85, 0, 0.45);
+
+      --text-white: #ffffff;
+      --text-soft: rgba(255, 255, 255, 0.82);
+      --text-dim: rgba(255, 255, 255, 0.48);
+
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg-pitch-black);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-white);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Silhouette Backdrop: Deep Dark Obsidian with Warm Solar Rim Glow */
+    .cinematic-bg {
+      position: fixed;
+      inset: 0;
+      background: url('assets/vivam_custom_bg.jpg') center top / cover no-repeat;
+      filter: brightness(0.62) contrast(1.2);
+      z-index: 0;
+      transform: scale(1.02);
+      transition: filter 0.6s ease;
+    }
+    .cinematic-bg.playing {
+      animation: subtleBreath 9s ease-in-out infinite alternate;
+    }
+    @keyframes subtleBreath {
+      0% { transform: scale(1.02); filter: brightness(0.62); }
+      100% { transform: scale(1.04); filter: brightness(0.72); }
+    }
+
+    /* Heavy Pitch Black Vignette */
+    .cinematic-overlay {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 50% 30%, rgba(255, 85, 0, 0.12) 0%, rgba(0, 0, 0, 0.68) 60%, #000000 95%),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.75) 50%, #000000 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Studio Cockpit Container */
+    .studio-cockpit {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 24px 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 768px) {
+      .studio-cockpit {
+        padding: 16px 14px 40px;
+        gap: 20px;
+      }
+    }
+
+    /* ==========================================================================
+       TOPBAR: LOGO, LIVE BADGE, LISTENERS & SHARE
+       ========================================================================== */
+    .studio-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+    .brand-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .brand-text h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #fff;
+      line-height: 1.1;
+    }
+    .brand-text p {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-dim);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-pill {
+      background: rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-pill);
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .micro-eq {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2.5px;
+      height: 12px;
+    }
+    .micro-eq-bar {
+      width: 2.5px;
+      height: 4px;
+      background: var(--accent-orange);
+      border-radius: 2px;
+      transition: height 0.1s ease;
+    }
+    .micro-eq.active .micro-eq-bar:nth-child(1) { animation: eqJump 0.5s infinite alternate ease-in-out; }
+    .micro-eq.active .micro-eq-bar:nth-child(2) { animation: eqJump 0.35s 0.2s infinite alternate ease-in-out; }
+    .micro-eq.active .micro-eq-bar:nth-child(3) { animation: eqJump 0.6s 0.1s infinite alternate ease-in-out; }
+    @keyframes eqJump {
+      0% { height: 3px; }
+      100% { height: 12px; }
+    }
+
+    .icon-circle-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border-subtle);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .icon-circle-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+       MAIN TRI-COLUMN LAYOUT (LEFT: REDES/PIX | CENTER: RADIAL | RIGHT: PROGRAMAÇÃO)
+       ========================================================================== */
+    .studio-dashboard {
+      display: grid;
+      grid-template-columns: 310px 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 1080px) {
+      .studio-dashboard {
+        grid-template-columns: 280px 1fr 310px;
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .studio-dashboard {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
+
+    /* ==========================================================================
+       CENTER COLUMN: THE CIRCULAR RADIAL EQUALIZER & MASTER PLAY
+       ========================================================================== */
+    .center-stage-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    /* RADIAL AUDIO VISUALIZER WRAPPER (Exact 360-degree Motion) */
+    .radial-visualizer-stage {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 480px) {
+      .radial-visualizer-stage {
+        width: 290px;
+        height: 290px;
+      }
+    }
+
+    /* Canvas Drawing 360-degree Radial Equalizer Bars */
+    #radialEqCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Central Circular Disc holding the Logo */
+    .center-circle-logo {
+      position: relative;
+      z-index: 2;
+      width: 174px;
+      height: 174px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #1c1514 0%, #0d0908 100%);
+      border: 3px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 
+        0 12px 36px rgba(0, 0, 0, 0.8),
+        0 0 24px rgba(255, 85, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+    }
+    .center-circle-logo.playing {
+      box-shadow: 
+        0 16px 45px rgba(0, 0, 0, 0.9),
+        0 0 35px rgba(255, 85, 0, 0.5);
+      border-color: rgba(255, 145, 0, 0.45);
+    }
+    .center-circle-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: none !important; /* Logo perfeitamente estática, sem girar */
+    }
+    .center-circle-logo.playing img {
+      transform: none !important; /* Mantém a logo perfeitamente estática ao tocar */
+    }
+
+    /* Station Frequency Title */
+    .center-frequency-meta {
+      margin-bottom: 20px;
+    }
+    .center-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .center-title span {
+      color: var(--accent-orange);
+    }
+    .center-sub {
+      font-size: 13px;
+      color: var(--text-soft);
+      letter-spacing: -0.2px;
+    }
+    .center-live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-amber);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    /* Master Play / Pause Tactile Pill Button */
+    .master-play-deck {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 360px;
+      margin-bottom: 20px;
+    }
+    .master-play-pill-btn {
+      flex: 1;
+      height: 60px;
+      border-radius: var(--radius-pill);
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      box-shadow: 
+        0 10px 30px rgba(255, 85, 0, 0.4),
+        0 4px 14px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .master-play-pill-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 14px 40px rgba(255, 100, 0, 0.6);
+    }
+    .master-play-pill-btn:active {
+      transform: scale(0.97);
+    }
+    .master-play-pill-btn.is-playing {
+      background: var(--accent-orange);
+      color: #ffffff;
+      box-shadow: 0 10px 35px var(--accent-glow);
+    }
+
+    /* Frosted Volume Capsule */
+    .frosted-volume-capsule {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      height: 54px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-pill);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .capsule-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .capsule-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .capsule-dots-track {
+      position: absolute;
+      left: 80px;
+      right: 56px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .capsule-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .frosted-slider-knob {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: 48px;
+      border-radius: var(--radius-pill);
+      background: rgba(45, 30, 26, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .knob-notch {
+      width: 2px;
+      height: 12px;
+      border-radius: 1px;
+      background: #ffffff;
+    }
+    .capsule-range-input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 4;
+    }
+
+    /* ==========================================================================
+       LEFT COLUMN: DETAILED REDES SOCIAIS, CONTATOS & APOIO PIX
+       ========================================================================== */
+    .left-channel-column {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .cockpit-card {
+      background: var(--bg-panel);
+      backdrop-filter: blur(35px) saturate(180%);
+      -webkit-backdrop-filter: blur(35px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card-header-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--glass-border-subtle);
+      padding-bottom: 10px;
+    }
+    .card-title-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .card-title-text i {
+      color: var(--accent-orange);
+    }
+
+    /* Detailed Social Links List (Escrito com detalhes, não apenas ícone) */
+    .detailed-social-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .social-channel-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: #fff;
+      transition: all 0.2s ease;
+    }
+    .social-channel-row:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--glass-border);
+      transform: translateX(3px);
+    }
+    .social-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .social-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .social-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .social-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Detailed PIX Card */
+    .pix-card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .pix-top-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .pix-qr-frame {
+      width: 82px;
+      height: 82px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pix-qr-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .pix-meta-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .pix-badge-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-amber);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .pix-key-val {
+      font-family: 'Space Grotesk', monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+    .pix-entity {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .btn-copy-pix-detailed {
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-copy-pix-detailed:hover {
+      background: #f0f0f5;
+      transform: translateY(-1px);
+    }
+
+    /* Fast Request Tiles on Left */
+    .fast-action-duo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .btn-fast-action {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 10px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .btn-fast-action:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--glass-border);
+      transform: translateY(-2px);
+    }
+    .btn-fast-action i {
+      font-size: 16px;
+      color: var(--accent-amber);
+    }
+    .btn-fast-action span {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       RIGHT COLUMN: GRADE DE PROGRAMAÇÃO DETALHADA + CHAT MURAL
+       ========================================================================== */
+    .right-channel-column {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Featured On-Air Card */
+    .featured-on-air-box {
+      background: linear-gradient(135deg, rgba(255, 85, 0, 0.18) 0%, rgba(255, 145, 0, 0.06) 100%);
+      border: 1px solid rgba(255, 85, 0, 0.35);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .on-air-top-tag {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .live-dot-tag {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--accent-orange);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-orange);
+      box-shadow: 0 0 8px var(--accent-orange);
+      animation: blinkPulse 1.6s infinite ease-in-out;
+    }
+    @keyframes blinkPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .featured-time-str {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-soft);
+      font-variant-numeric: tabular-nums;
+    }
+    .featured-show-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+    .featured-show-desc {
+      font-size: 11px;
+      color: var(--text-soft);
+      line-height: 1.35;
+    }
+
+    /* Schedule Timeline Rows */
+    .schedule-channel-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .schedule-channel-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card-subtle);
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .schedule-channel-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .schedule-channel-item.is-current {
+      background: rgba(255, 85, 0, 0.12);
+      border-color: rgba(255, 85, 0, 0.35);
+    }
+    .channel-time-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-dim);
+      min-width: 46px;
+      font-variant-numeric: tabular-nums;
+    }
+    .schedule-channel-item.is-current .channel-time-tag {
+      color: var(--accent-orange);
+    }
+    .channel-info-box {
+      flex: 1;
+      padding: 0 8px;
+    }
+    .channel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .channel-subtext {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+    .channel-badge-now {
+      font-size: 9px;
+      font-weight: 800;
+      color: #fff;
+      background: var(--accent-orange);
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Live Chat Stream */
+    .chat-messages-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .chat-messages-feed::-webkit-scrollbar {
+      width: 4px;
+    }
+    .chat-messages-feed::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    .chat-feed-bubble {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 11px;
+    }
+    .chat-feed-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .chat-author-name {
+      font-weight: 700;
+      color: var(--accent-amber);
+    }
+    .chat-city-name {
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+    .chat-body-text {
+      color: var(--text-soft);
+      line-height: 1.35;
+    }
+    .chat-send-quick-box {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .chat-quick-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      color: #fff;
+      font-size: 12px;
+      font-family: inherit;
+      outline: none;
+    }
+    .chat-quick-input:focus {
+      border-color: var(--accent-orange);
+    }
+    .chat-quick-send-btn {
+      background: #ffffff;
+      color: #000;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       BOTTOM SECTION: DEDICATED SEPARATE CARD FOR TV VIVAM (VIDEO DECK)
+       ========================================================================== */
+    .bottom-video-section {
+      width: 100%;
+    }
+
+    .tv-deck-card {
+      background: var(--bg-panel);
+      backdrop-filter: blur(35px) saturate(180%);
+      -webkit-backdrop-filter: blur(35px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tv-deck-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tv-deck-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tv-deck-title i {
+      color: #ef4444;
+    }
+    .tv-deck-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tv-btn-action {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border-subtle);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .tv-btn-action:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .tv-player-viewport {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000000;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9);
+      position: relative;
+    }
+    .tv-player-viewport video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* ==========================================================================
+       MODALS & SHEETS (PEDIR MÚSICA, ORAÇÃO, PROMOÇÃO)
+       ========================================================================== */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .sheet-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet-box {
+      width: 100%;
+      max-width: 440px;
+      background: #110e0d;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transform: scale(0.96);
+      transition: transform 0.25s ease;
+    }
+    .sheet-backdrop.open .sheet-box {
+      transform: scale(1);
+    }
+    .sheet-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sheet-top h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .sheet-close-x {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+    .sheet-field {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+    }
+    .sheet-field:focus {
+      border-color: var(--accent-orange);
+    }
+    .sheet-submit-btn {
+      background: #ffffff;
+      color: #000;
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 13px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .sheet-submit-btn.whatsapp {
+      background: #25d366;
+      color: #fff;
+    }
+
+    /* Floating Toast */
+    .studio-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-60px);
+      background: rgba(25, 20, 18, 0.96);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      padding: 10px 22px;
+      border-radius: var(--radius-pill);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      z-index: 1000000;
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .studio-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Silhouette Backdrop (Deep Obsidian with Solar Rim Light) -->
+  <div class="cinematic-bg" id="cinematic-bg"></div>
+  <div class="cinematic-overlay"></div>
+
+  <!-- Audio Element -->
+  <audio id="radio-audio" preload="none"></audio>
+
+  <!-- STUDIO MAIN COCKPIT -->
+  <div class="studio-cockpit">
+
+    <!-- TOPBAR -->
+    <header class="studio-topbar">
+      <a href="#" class="brand-group">
+        <div class="brand-icon">
+          <img id="topbar-logo-img" src="assets/logo_original.png" alt="Rádio Vivam" onerror="this.src='assets/logo_modern_vivam.svg'">
+        </div>
+        <div class="brand-text">
+          <h1 id="topbar-station-name">RÁDIO VIVAM</h1>
+          <p id="topbar-station-sub">Rádio Web • Caldas Novas / GO</p>
+        </div>
+      </a>
+
+      <div class="topbar-actions">
+        <div class="status-pill">
+          <div class="micro-eq" id="micro-eq">
+            <span class="micro-eq-bar"></span>
+            <span class="micro-eq-bar"></span>
+            <span class="micro-eq-bar"></span>
+          </div>
+          <span>AO VIVO</span>
+        </div>
+
+        <button class="icon-circle-btn" onclick="compartilharRadio()" title="Compartilhar">
+          <i class="fa-solid fa-share-nodes"></i>
+        </button>
+
+        <button class="icon-circle-btn" onclick="toggleNotificacoes()" title="Notificações">
+          <i class="fa-solid fa-bell" id="bell-icon"></i>
+        </button>
+
+        <!-- Botão de Acesso ao Painel Administrativo -->
+        <a href="admin.html" target="_blank" class="icon-circle-btn" title="Painel de Controle Administrativo" style="text-decoration:none;">
+          <i class="fa-solid fa-gear"></i>
+        </a>
+
+        <!-- Botão de Acesso ao Gerador de Apps PWA -->
+        <a href="gerador.html" target="_blank" class="icon-circle-btn" title="Gerador de Apps PWA para Rádios" style="text-decoration:none; color: var(--accent-orange);">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </a>
+      </div>
+    </header>
+
+    <!-- MAIN DASHBOARD: 3 COLUMNS -->
+    <main class="studio-dashboard">
+
+      <!-- ====================================================================
+           LEFT COLUMN: REDES SOCIAIS, CONTATO DETALHADO & APOIO PIX
+           ==================================================================== -->
+      <aside class="left-channel-column">
+
+        <!-- 1. DETAILED SOCIAL NETWORKS & WHATSAPP CARD -->
+        <div class="cockpit-card">
+          <div class="card-header-line">
+            <h3 class="card-title-text">
+              <i class="fa-solid fa-hashtag"></i>
+              <span>Canais & Contato</span>
+            </h3>
+            <span style="font-size: 10px; color: var(--accent-amber); font-weight: 700;">OFICIAL</span>
+          </div>
+
+          <div class="detailed-social-list">
+            <!-- WhatsApp -->
+            <a id="social-row-wpp" href="https://wa.me/5564992432520?text=Ol%C3%A1%20R%C3%A1dio%20Vivam!%20Estou%20ouvindo%20a%20r%C3%A1dio%20pelo%20site!" target="_blank" class="social-channel-row">
+              <div class="social-icon-box" style="background: rgba(37, 211, 102, 0.15); color: #4ade80; border: 1px solid rgba(37, 211, 102, 0.3);">
+                <i class="fa-brands fa-whatsapp"></i>
+              </div>
+              <div class="social-meta">
+                <div class="social-name">WhatsApp da Rádio</div>
+                <div class="social-desc" id="social-desc-wpp">(64) 99243-2520 • No Ar</div>
+              </div>
+            </a>
+
+            <!-- Instagram -->
+            <a id="social-row-insta" href="https://www.instagram.com/podcastdesafiosmissionarios/" target="_blank" class="social-channel-row">
+              <div class="social-icon-box" style="background: rgba(225, 48, 108, 0.15); color: #f472b6; border: 1px solid rgba(225, 48, 108, 0.3);">
+                <i class="fa-brands fa-instagram"></i>
+              </div>
+              <div class="social-meta">
+                <div class="social-name">Podcast Desafios</div>
+                <div class="social-desc" id="social-desc-insta">@podcastdesafiosmissionarios</div>
+              </div>
+            </a>
+
+            <!-- YouTube -->
+            <a id="social-row-yt" href="https://www.youtube.com/channel/UCCU71_q3RloX7rGLSUjCneg" target="_blank" class="social-channel-row">
+              <div class="social-icon-box" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+                <i class="fa-brands fa-youtube"></i>
+              </div>
+              <div class="social-meta">
+                <div class="social-name">Canal no YouTube</div>
+                <div class="social-desc" id="social-desc-yt">Cultos e Mensagens em Vídeo</div>
+              </div>
+            </a>
+
+            <!-- Facebook -->
+            <a id="social-row-fb" href="https://www.facebook.com/vidasemavivamento?locale=pt_BR" target="_blank" class="social-channel-row">
+              <div class="social-icon-box" style="background: rgba(24, 119, 242, 0.15); color: #60a5fa; border: 1px solid rgba(24, 119, 242, 0.3);">
+                <i class="fa-brands fa-facebook-f"></i>
+              </div>
+              <div class="social-meta">
+                <div class="social-name">Facebook Oficial</div>
+                <div class="social-desc" id="social-desc-fb">Vidas em Avivamento</div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Fast Action Duo: Pedir Música / Pedir Oração -->
+          <div class="fast-action-duo">
+            <button class="btn-fast-action" onclick="openStudioSheet('sheet-request')">
+              <i class="fa-solid fa-music"></i>
+              <span>Pedir Louvor</span>
+            </button>
+            <button class="btn-fast-action" onclick="openStudioSheet('sheet-prayer')">
+              <i class="fa-solid fa-hands-praying"></i>
+              <span>Pedir Oração</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. DETAILED PIX DONATION CARD -->
+        <div class="cockpit-card" id="pix-donation-card">
+          <div class="card-header-line">
+            <h3 class="card-title-text">
+              <i class="fa-solid fa-heart" style="color: var(--accent-orange);"></i>
+              <span id="pix-card-title">Apoie a Rádio</span>
+            </h3>
+            <span style="font-size: 10px; color: var(--text-dim); font-weight: 700;">CHAVE PIX</span>
+          </div>
+
+          <div class="pix-card-content">
+            <div id="pix-project-name" style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Projeto Bíblia Sagrada para Todos</div>
+            <p id="pix-project-desc" style="font-size: 11px; color: var(--text-soft); line-height: 1.4; margin-bottom: 12px;">
+              Ajude a Rádio Vivam a levar a Palavra de Deus e Bíblias para famílias e comunidades que mais precisam. Sua contribuição voluntária sustenta essa missão!
+            </p>
+            <div class="pix-top-row">
+              <div class="pix-qr-frame">
+                <img id="pix-qr-img" src="assets/pix_qr.svg" alt="QR Code PIX Rádio Vivam">
+              </div>
+              <div class="pix-meta-info">
+                <span class="pix-badge-title" id="pix-key-badge">Telefone / Whats</span>
+                <span class="pix-key-val" id="pix-key-text">64992432520</span>
+                <span class="pix-entity" id="pix-entity-text">Rádio Vivam • Vidas em Avivamento</span>
+              </div>
+            </div>
+
+            <button class="btn-copy-pix-detailed" onclick="copiarChavePix()">
+              <i class="fa-regular fa-copy"></i>
+              <span id="pix-btn-label">Copiar Chave PIX</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. PROMOÇÃO / CAMPANHA DO MÊS (Configurável no Painel) -->
+        <div class="cockpit-card" id="promo-cockpit-card" style="display: none; border-color: rgba(255, 145, 0, 0.3); background: linear-gradient(135deg, rgba(255, 145, 0, 0.08), rgba(20, 20, 22, 0.85));">
+          <div class="card-header-line">
+            <h3 class="card-title-text">
+              <i class="fa-solid fa-gift" style="color: var(--accent-orange);"></i>
+              <span id="promo-header-title">Campanha do Mês</span>
+            </h3>
+            <span style="font-size: 10px; color: var(--accent-orange); font-weight: 700;">PROMOÇÃO</span>
+          </div>
+          <div style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;" id="promo-title-text">Sorteio Especial Bíblia de Estudos</div>
+          <p style="font-size: 11px; color: var(--text-soft); line-height: 1.4; margin-bottom: 12px;" id="promo-desc-text">
+            Participe do nosso sorteio mensal mandando sua mensagem de fé no WhatsApp da rádio com seu nome e cidade!
+          </p>
+          <button class="btn-fast-action" style="width: 100%; border-color: rgba(255,145,0,0.4);" onclick="participarPromocaoWhatsApp()">
+            <i class="fa-brands fa-whatsapp" style="color: #4ade80;"></i>
+            <span>Participar pelo WhatsApp</span>
+          </button>
+        </div>
+
+      </aside>
+
+      <!-- ====================================================================
+           CENTER COLUMN: CIRCULAR LOGO + 360° RADIAL EQUALIZER MOTION + MASTER PLAY
+           ==================================================================== -->
+      <section class="center-stage-column">
+
+        <!-- 360-DEGREE RADIAL MOTION EQUALIZER WITH CENTER CIRCLE -->
+        <div class="radial-visualizer-stage">
+          <!-- Canvas drawing radiating rectangle audio bars around the circle -->
+          <canvas id="radialEqCanvas"></canvas>
+
+          <!-- Central Circle with Vivam Logo Disc -->
+          <div class="center-circle-logo" id="center-logo-disc" onclick="togglePlayRadio()" title="Clique para Tocar ou Pausar">
+            <img src="assets/logo_original.png" alt="Rádio Vivam" id="center-logo-img" onerror="this.src='assets/logo_modern_vivam.svg'">
+          </div>
+        </div>
+
+        <!-- Frequency & Meta Typography -->
+        <div class="center-frequency-meta">
+          <h2 class="center-title" id="center-freq-title">RÁDIO <span>WEB</span></h2>
+          <p class="center-sub" id="center-slogan-sub">Vidas em Avivamento • Transmissão Oficial</p>
+          <div class="center-live-tag">
+            <i class="fa-solid fa-radio"></i>
+            <span id="center-program-label">Conexão Avivamento</span>
+          </div>
+        </div>
+
+        <!-- Tactile Master Play Button Underneath Circle -->
+        <div class="master-play-deck">
+          <button class="master-play-pill-btn" id="master-play-btn" onclick="togglePlayRadio()">
+            <i class="fa-solid fa-play" id="master-play-icon"></i>
+            <span id="master-btn-label">Ouvir Rádio Ao Vivo</span>
+          </button>
+        </div>
+
+        <!-- Frosted Volume Capsule -->
+        <div class="frosted-volume-capsule" id="vol-capsule">
+          <span class="capsule-label">Volume</span>
+
+          <div class="capsule-dots-track">
+            <span class="capsule-dot"></span>
+            <span class="capsule-dot"></span>
+            <span class="capsule-dot"></span>
+            <span class="capsule-dot"></span>
+            <span class="capsule-dot"></span>
+            <span class="capsule-dot"></span>
+            <span class="capsule-dot"></span>
+          </div>
+
+          <div class="frosted-slider-knob" id="vol-knob">
+            <div class="knob-notch"></div>
+          </div>
+
+          <input type="range" class="capsule-range-input" id="volume-input" min="0" max="100" value="85" oninput="handleVolumeChange(this.value)">
+
+          <span class="capsule-value" id="vol-number">85%</span>
+        </div>
+
+      </section>
+
+      <!-- ====================================================================
+           RIGHT COLUMN: GRADE DE PROGRAMAÇÃO DETALHADA + CHAT MURAL
+           ==================================================================== -->
+      <aside class="right-channel-column">
+
+        <!-- 1. FULL PROGRAM GUIDE PANEL -->
+        <div class="cockpit-card">
+          <div class="card-header-line">
+            <h3 class="card-title-text">
+              <i class="fa-solid fa-calendar-day"></i>
+              <span>Grade de Programação</span>
+            </h3>
+            <span style="font-size: 10px; color: var(--accent-orange); font-weight: 700;">AO VIVO</span>
+          </div>
+
+          <!-- Featured On-Air Card -->
+          <div class="featured-on-air-box">
+            <div class="on-air-top-tag">
+              <span class="live-dot-tag">
+                <span class="pulse-dot"></span>
+                No Ar Agora
+              </span>
+              <span class="featured-time-str" id="featured-program-time">16:00 - 20:00</span>
+            </div>
+            <h4 class="featured-show-name" id="featured-program-name">Tarde Abençoada</h4>
+            <p class="featured-show-desc">
+              Louvores edificantes, oração da tarde e a participação ao vivo dos ouvintes.
+            </p>
+          </div>
+
+          <!-- Schedule Timeline List -->
+          <div class="schedule-channel-rows" id="schedule-timeline-rows">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- 2. LIVE CHAT & MURAL DOS OUVINTES -->
+        <div class="cockpit-card">
+          <div class="card-header-line">
+            <h3 class="card-title-text">
+              <i class="fa-solid fa-comments"></i>
+              <span>Mural dos Ouvintes</span>
+            </h3>
+            <span style="font-size: 10px; color: var(--text-dim);">TEMPO REAL</span>
+          </div>
+
+          <div class="chat-messages-feed" id="chat-stream-box">
+            <div class="chat-feed-bubble">
+              <div class="chat-feed-meta">
+                <span class="chat-author-name">Irmã Marta Rodrigues</span>
+                <span class="chat-city-name">Rio Verde - GO</span>
+              </div>
+              <p class="chat-body-text">A paz do Senhor! Ligadinha na rádio todos os dias. Deus abençoe a todos!</p>
+            </div>
+            <div class="chat-feed-bubble">
+              <div class="chat-feed-meta">
+                <span class="chat-author-name">Carlos Eduardo</span>
+                <span class="chat-city-name">Goiânia - GO</span>
+              </div>
+              <p class="chat-body-text">Excelente programação de louvor. Estamos sintonizados aqui no trabalho!</p>
+            </div>
+            <div class="chat-feed-bubble">
+              <div class="chat-feed-meta">
+                <span class="chat-author-name">Pastora Elizete</span>
+                <span class="chat-city-name">Caldas Novas - GO</span>
+              </div>
+              <p class="chat-body-text">Ouvindo com toda a família. Toca 'Bondade de Deus' para nós!</p>
+            </div>
+          </div>
+
+          <!-- Quick Inline Send -->
+          <div class="chat-send-quick-box">
+            <input type="text" class="chat-quick-input" id="chat-quick-input" placeholder="Seu nome e recado...">
+            <button class="chat-quick-send-btn" onclick="enviarMensagemInline()">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <!-- ====================================================================
+         BOTTOM SECTION: DEDICATED SEPARATE CARD FOR TV VIVAM (VIDEO DECK)
+         ==================================================================== -->
+    <section class="bottom-video-section">
+      <div class="tv-deck-card">
+        <div class="tv-deck-top">
+          <div class="tv-deck-title">
+            <i class="fa-solid fa-tv"></i>
+            <span>TV Vivam • Transmissão em Vídeo ao Vivo</span>
+          </div>
+          <div class="tv-deck-actions">
+            <button class="tv-btn-action" onclick="toggleTvPlayPause()">
+              <i class="fa-solid fa-play" id="tv-play-icon"></i>
+              <span id="tv-play-label">Iniciar TV</span>
+            </button>
+            <button class="tv-btn-action" onclick="toggleTvFullscreen()">
+              <i class="fa-solid fa-expand"></i>
+              <span>Tela Cheia</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="tv-player-viewport">
+          <video id="tv-video-player" controls playsinline></video>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==========================================================================
+       MODALS: PEDIR LOUVOR & PEDIR ORAÇÃO
+       ========================================================================== -->
+
+  <!-- SHEET: PEDIR LOUVOR -->
+  <div class="sheet-backdrop" id="sheet-request" onclick="handleSheetBackdrop(event, 'sheet-request')">
+    <div class="sheet-box">
+      <div class="sheet-top">
+        <h3>🎵 Pedir Louvor / Música</h3>
+        <button class="sheet-close-x" onclick="closeStudioSheet('sheet-request')">✕</button>
+      </div>
+      <p style="font-size: 12px; color: var(--text-soft); line-height: 1.4;">
+        Envie seu pedido diretamente para o WhatsApp do locutor da Rádio Vivam!
+      </p>
+      <input type="text" class="sheet-field" id="req-nome" placeholder="Seu nome">
+      <input type="text" class="sheet-field" id="req-musica" placeholder="Nome do louvor / música">
+      <input type="text" class="sheet-field" id="req-artista" placeholder="Cantor / Grupo (opcional)">
+      <input type="text" class="sheet-field" id="req-msg" placeholder="Recado / Dedicatória para...">
+      <button class="sheet-submit-btn whatsapp" onclick="enviarPedidoWhatsApp()">
+        <i class="fa-brands fa-whatsapp"></i> Enviar pelo WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- SHEET: PEDIR ORAÇÃO -->
+  <div class="sheet-backdrop" id="sheet-prayer" onclick="handleSheetBackdrop(event, 'sheet-prayer')">
+    <div class="sheet-box">
+      <div class="sheet-top">
+        <h3>🙏 Pedido de Oração</h3>
+        <button class="sheet-close-x" onclick="closeStudioSheet('sheet-prayer')">✕</button>
+      </div>
+      <p style="font-size: 12px; color: var(--text-soft); line-height: 1.4;">
+        Nossa equipe de pastores orará pelo seu propósito de fé.
+      </p>
+      <input type="text" class="sheet-field" id="prayer-nome" placeholder="Seu nome">
+      <input type="text" class="sheet-field" id="prayer-cidade" placeholder="Sua cidade">
+      <textarea class="sheet-field" id="prayer-motivo" style="min-height: 70px; resize: none;" placeholder="Motivo da oração (Família, Saúde, Libertação...)"></textarea>
+      <button class="sheet-submit-btn whatsapp" onclick="enviarPedidoOracaoWhatsApp()">
+        <i class="fa-brands fa-whatsapp"></i> Enviar para os Pastores
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST FEEDBACK -->
+  <div class="studio-toast" id="studio-toast">
+    <i class="fa-solid fa-check" style="color: var(--accent-orange);"></i>
+    <span id="toast-text-content">Notificação</span>
+  </div>
+
+  <!-- ==========================================================================
+       LOGIC: RADIAL 360° EQUALIZER + STREAMS + SCHEDULE + CHAT + ADMIN DYNAMICS
+       ========================================================================== -->
+  <script>
+    let AUDIO_STREAM_URL = 'https://stm4.audiplushd.com.br:7370/stream';
+    let TV_STREAM_URL = 'https://stmv1.liveplushd.com.br/tvvivam/tvvivam/playlist.m3u8';
+    let WHATSAPP_PHONE = '5564992432520';
+    let PROMO_WPP_MSG = 'Quero participar da promoção da Rádio Vivam!';
+
+    const audioEl = document.getElementById('radio-audio');
+    const playBtn = document.getElementById('master-play-btn');
+    const playIcon = document.getElementById('master-play-icon');
+    const playLabel = document.getElementById('master-btn-label');
+    const centerLogoDisc = document.getElementById('center-logo-disc');
+    const cinematicBg = document.getElementById('cinematic-bg');
+    const volKnob = document.getElementById('vol-knob');
+    const volNumber = document.getElementById('vol-number');
+    const volInput = document.getElementById('volume-input');
+    const microEq = document.getElementById('micro-eq');
+    const tvVideoPlayer = document.getElementById('tv-video-player');
+    const tvPlayIcon = document.getElementById('tv-play-icon');
+    const tvPlayLabel = document.getElementById('tv-play-label');
+    let hlsInstance = null;
+
+    let isPlaying = false;
+    let isTvPlaying = false;
+
+    // ── 1. 360-DEGREE RADIAL EQUALIZER MOTION CANVAS (CIRCULAR RETÂNGULOS) ──
+    const canvas = document.getElementById('radialEqCanvas');
+    const ctx = canvas.getContext('2d');
+    let radialPhase = 0;
+
+    function resizeRadialCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * (window.devicePixelRatio || 1);
+      canvas.height = rect.height * (window.devicePixelRatio || 1);
+      ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+    }
+    window.addEventListener('resize', resizeRadialCanvas);
+    resizeRadialCanvas();
+
+    function drawRadialEqualizer() {
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      ctx.clearRect(0, 0, width, height);
+
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const baseRadius = 92; // Just outside the 174px center circle (radius 87 + gap 5)
+      const numBars = 54; // Number of rectangular bars orbiting in 360 degrees
+      const angleStep = (Math.PI * 2) / numBars;
+
+      radialPhase += isPlaying ? 0.045 : 0.012;
+      const currentVol = (audioEl.volume || 0.85);
+
+      for (let i = 0; i < numBars; i++) {
+        const angle = i * angleStep;
+
+        // Harmonic wave oscillation around the circle
+        const wave1 = Math.sin(i * 0.45 + radialPhase);
+        const wave2 = Math.cos(i * 0.25 - radialPhase * 0.8);
+        const combined = Math.abs(wave1 * 0.6 + wave2 * 0.4);
+
+        // Height of the rectangular bar extending outward
+        const maxBarLen = isPlaying ? (28 * currentVol + combined * 18) : 5;
+        const barLength = Math.max(4, combined * maxBarLen);
+
+        // Start point on perimeter
+        const startX = centerX + Math.cos(angle) * baseRadius;
+        const startY = centerY + Math.sin(angle) * baseRadius;
+
+        // End point extending radially outward
+        const endX = centerX + Math.cos(angle) * (baseRadius + barLength);
+        const endY = centerY + Math.sin(angle) * (baseRadius + barLength);
+
+        // Dynamic gradient for each radial rectangle
+        const grad = ctx.createLinearGradient(startX, startY, endX, endY);
+        if (isPlaying) {
+          grad.addColorStop(0, 'rgba(255, 145, 0, 0.5)');
+          grad.addColorStop(0.5, 'rgba(255, 85, 0, 0.9)');
+          grad.addColorStop(1, '#ffffff');
+        } else {
+          grad.addColorStop(0, 'rgba(255, 255, 255, 0.25)');
+          grad.addColorStop(1, 'rgba(255, 255, 255, 0.08)');
+        }
+
+        ctx.beginPath();
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = isPlaying ? 3.2 : 2.0;
+        ctx.lineCap = 'round';
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+      }
+
+      requestAnimationFrame(drawRadialEqualizer);
+    }
+
+    drawRadialEqualizer();
+
+    // ── 2. AUDIO PLAYBACK & MEDIASESSION ──
+    function setupMediaSession() {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: 'Rádio Vivam • 94.7 FM',
+          artist: 'Vidas em Avivamento',
+          album: 'Caldas Novas / GO',
+          artwork: [
+            { src: 'assets/logo_original.png', sizes: '300x300', type: 'image/png' },
+            { src: 'assets/logo_modern_vivam.svg', sizes: '512x512', type: 'image/svg+xml' }
+          ]
+        });
+        navigator.mediaSession.setActionHandler('play', () => playRadio());
+        navigator.mediaSession.setActionHandler('pause', () => pauseRadio());
+        navigator.mediaSession.setActionHandler('stop', () => pauseRadio());
+      }
+    }
+
+    function togglePlayRadio() {
+      if (isPlaying) {
+        pauseRadio();
+      } else {
+        playRadio();
+      }
+    }
+
+    function playRadio() {
+      if (!audioEl.src || audioEl.src === '') {
+        audioEl.src = AUDIO_STREAM_URL;
+      }
+
+      playIcon.className = 'fa-solid fa-spinner fa-spin';
+      playLabel.textContent = 'Conectando...';
+
+      audioEl.play().then(() => {
+        isPlaying = true;
+        playBtn.classList.add('is-playing');
+        playIcon.className = 'fa-solid fa-pause';
+        playLabel.textContent = 'Pausar Transmissão';
+        centerLogoDisc.classList.add('playing');
+        cinematicBg.classList.add('playing');
+        microEq.classList.add('active');
+        setupMediaSession();
+        showToast('Tocando Rádio Vivam Ao Vivo');
+      }).catch(err => {
+        console.warn('Playback error:', err);
+        playBtn.classList.remove('is-playing');
+        playIcon.className = 'fa-solid fa-play';
+        playLabel.textContent = 'Ouvir Rádio Ao Vivo';
+        centerLogoDisc.classList.remove('playing');
+        cinematicBg.classList.remove('playing');
+        microEq.classList.remove('active');
+        isPlaying = false;
+        showToast('Toque novamente para iniciar o áudio');
+      });
+    }
+
+    function pauseRadio() {
+      audioEl.pause();
+      isPlaying = false;
+      playBtn.classList.remove('is-playing');
+      playIcon.className = 'fa-solid fa-play';
+      playLabel.textContent = 'Ouvir Rádio Ao Vivo';
+      centerLogoDisc.classList.remove('playing');
+      cinematicBg.classList.remove('playing');
+      microEq.classList.remove('active');
+      showToast('Áudio pausado');
+    }
+
+    // ── 3. VOLUME CONTROL ──
+    function updateKnobPosition(val) {
+      const capsule = document.getElementById('vol-capsule');
+      const maxTravel = capsule.offsetWidth - 56;
+      const travel = (val / 100) * maxTravel;
+      volKnob.style.transform = `translateX(${travel}px)`;
+      volNumber.textContent = `${val}%`;
+    }
+
+    function handleVolumeChange(val) {
+      audioEl.volume = val / 100;
+      updateKnobPosition(val);
+      localStorage.setItem('vivam_vol', val);
+    }
+
+    // ── 4. DEDICATED TV VIVAM VIDEO DECK ──
+    function toggleTvPlayPause() {
+      initTv();
+      if (tvVideoPlayer.paused) {
+        tvVideoPlayer.play().then(() => {
+          isTvPlaying = true;
+          tvPlayIcon.className = 'fa-solid fa-pause';
+          tvPlayLabel.textContent = 'Pausar TV';
+          showToast('TV Vivam Ao Vivo Iniciada');
+        }).catch(e => console.log('Autoplay handled:', e));
+      } else {
+        tvVideoPlayer.pause();
+        isTvPlaying = false;
+        tvPlayIcon.className = 'fa-solid fa-play';
+        tvPlayLabel.textContent = 'Iniciar TV';
+      }
+    }
+
+    function initTv() {
+      if (Hls.isSupported()) {
+        if (!hlsInstance) {
+          hlsInstance = new Hls();
+          hlsInstance.loadSource(TV_STREAM_URL);
+          hlsInstance.attachMedia(tvVideoPlayer);
+        }
+      } else if (tvVideoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+        tvVideoPlayer.src = TV_STREAM_URL;
+      }
+    }
+
+    function toggleTvFullscreen() {
+      initTv();
+      if (tvVideoPlayer.requestFullscreen) {
+        tvVideoPlayer.requestFullscreen();
+      } else if (tvVideoPlayer.webkitRequestFullscreen) {
+        tvVideoPlayer.webkitRequestFullscreen();
+      }
+    }
+
+    // ── 5. FULL SCHEDULE TIMELINE ──
+    let SCHEDULE = [
+      { start: 5, end: 8, name: 'Madrugada com Cristo', host: 'Vigília, Oração & Clamor', desc: 'Iniciando o dia em oração e louvores profundos de intercessão.' },
+      { start: 8, end: 12, name: 'Manhã de Avivamento', host: 'Palavra de Fé & Reflexões', desc: 'As melhores mensagens bíblicas e louvores para abençoar sua manhã.' },
+      { start: 12, end: 16, name: 'Conexão Missionária', host: 'Desafios & Notícias do Reino', desc: 'Testemunhos, evangelismo no campo e músicas que edificam.' },
+      { start: 16, end: 20, name: 'Tarde Abençoada', host: 'Participação ao Vivo dos Ouvintes', desc: 'Pedidos musicais, orações ao vivo e os louvores mais tocados.' },
+      { start: 20, end: 24, name: 'Noite de Paz & Louvor', host: 'Voz da Esperança', desc: 'Encerrando o dia com paz espiritual, testemunhos e adoração.' }
+    ];
+
+    function renderSchedule() {
+      const container = document.getElementById('schedule-timeline-rows');
+      const currentHour = new Date().getHours();
+      let activeShow = SCHEDULE[3];
+
+      container.innerHTML = '';
+      SCHEDULE.forEach(item => {
+        const isCurrent = (currentHour >= item.start && currentHour < item.end);
+        if (isCurrent) activeShow = item;
+
+        const row = document.createElement('div');
+        row.className = `schedule-channel-item ${isCurrent ? 'is-current' : ''}`;
+        row.innerHTML = `
+          <span class="channel-time-tag">${String(item.start).padStart(2, '0')}:00</span>
+          <div class="channel-info-box">
+            <div class="channel-title">${item.name}</div>
+            <div class="channel-subtext">${item.host}</div>
+          </div>
+          ${isCurrent ? '<span class="channel-badge-now">No Ar</span>' : ''}
+        `;
+        container.appendChild(row);
+      });
+
+      document.getElementById('center-program-label').textContent = activeShow.name;
+      document.getElementById('featured-program-name').textContent = activeShow.name;
+      document.getElementById('featured-program-time').textContent = `${String(activeShow.start).padStart(2, '0')}:00 - ${String(activeShow.end).padStart(2, '0')}:00`;
+    }
+
+    // ── 6. INLINE CHAT MESSAGE SEND ──
+    function enviarMensagemInline() {
+      const input = document.getElementById('chat-quick-input');
+      const text = input.value.trim();
+
+      if (!text) {
+        alert('Digite uma mensagem antes de enviar!');
+        return;
+      }
+
+      const stream = document.getElementById('chat-stream-box');
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-feed-bubble';
+      bubble.style.animation = 'fadeIn 0.3s ease';
+      bubble.innerHTML = `
+        <div class="chat-feed-meta">
+          <span class="chat-author-name">Você (Ouvinte)</span>
+          <span class="chat-city-name">Agora</span>
+        </div>
+        <p class="chat-body-text">${text}</p>
+      `;
+
+      stream.insertBefore(bubble, stream.firstChild);
+      input.value = '';
+      showToast('Sua mensagem foi publicada ao vivo!');
+    }
+
+    // ── 7. WHATSAPP & SHEETS ──
+    function enviarPedidoWhatsApp() {
+      const nome = document.getElementById('req-nome').value.trim();
+      const musica = document.getElementById('req-musica').value.trim();
+      const artista = document.getElementById('req-artista').value.trim();
+      const msg = document.getElementById('req-msg').value.trim();
+
+      if (!nome || !musica) {
+        alert('Por favor, informe seu nome e o louvor desejado.');
+        return;
+      }
+
+      let text = `🎶 *PEDIDO DE LOUVOR - RÁDIO VIVAM*\n\n`;
+      text += `👤 *Ouvinte:* ${nome}\n`;
+      text += `🎵 *Louvor:* ${musica}\n`;
+      if (artista) text += `🎤 *Cantor(a):* ${artista}\n`;
+      if (msg) text += `💬 *Recado:* ${msg}\n\n`;
+      text += `_Enviado pelo App da Rádio Vivam_`;
+
+      window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+      closeStudioSheet('sheet-request');
+      showToast('Pedido aberto no WhatsApp!');
+    }
+
+    function enviarPedidoOracaoWhatsApp() {
+      const nome = document.getElementById('prayer-nome').value.trim();
+      const cidade = document.getElementById('prayer-cidade').value.trim();
+      const motivo = document.getElementById('prayer-motivo').value.trim();
+
+      if (!nome || !motivo) {
+        alert('Por favor, informe seu nome e o motivo da oração.');
+        return;
+      }
+
+      let text = `🙏 *PEDIDO DE ORAÇÃO - RÁDIO VIVAM*\n\n`;
+      text += `👤 *Nome:* ${nome}\n`;
+      if (cidade) text += `📍 *Cidade:* ${cidade}\n`;
+      text += `📖 *Motivo de Oração:* ${motivo}\n\n`;
+      text += `_Peço a intercessão dos pastores e da equipe da rádio._`;
+
+      window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(text)}`, '_blank');
+      closeStudioSheet('sheet-prayer');
+      showToast('Pedido de oração enviado no WhatsApp!');
+    }
+
+    function copiarChavePix() {
+      const chave = document.getElementById('pix-key-text').textContent;
+      const btn = document.getElementById('pix-btn-label');
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(chave).then(() => {
+          btn.textContent = 'Copiado!';
+          showToast('Chave PIX copiada!');
+          setTimeout(() => { btn.textContent = 'Copiar Chave PIX'; }, 2500);
+        });
+      }
+    }
+
+    function compartilharRadio() {
+      const shareData = {
+        title: 'Rádio Vivam • Rádio Web Ao Vivo',
+        text: 'Estou ouvindo a Rádio Vivam agora! Ouça você também ao vivo:',
+        url: window.location.href
+      };
+
+      if (navigator.share) {
+        navigator.share(shareData).catch(() => {});
+      } else {
+        const text = encodeURIComponent('Estou ouvindo a Rádio Vivam agora! Ouça você também: ' + window.location.href);
+        window.open('https://wa.me/?text=' + text, '_blank');
+      }
+    }
+
+    let notifAtiva = false;
+    function toggleNotificacoes() {
+      notifAtiva = !notifAtiva;
+      const bell = document.getElementById('bell-icon');
+      if (notifAtiva) {
+        bell.style.color = '#ff9100';
+        showToast('Notificações ativadas!');
+      } else {
+        bell.style.color = '#ffffff';
+        showToast('Notificações desativadas');
+      }
+    }
+
+    function openStudioSheet(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('open');
+    }
+    function closeStudioSheet(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('open');
+    }
+    function handleSheetBackdrop(e, id) {
+      if (e.target.id === id) closeStudioSheet(id);
+    }
+
+    let toastTimeout = null;
+    function showToast(msg) {
+      const t = document.getElementById('studio-toast');
+      document.getElementById('toast-text-content').textContent = msg;
+      t.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => { t.classList.remove('show'); }, 3000);
+    }
+
+
+    // ── DYNAMIC CONFIGURATION LOADER (INTEGRAÇÃO COM PAINEL ADMIN) ──
+    function applyConfig(cfg) {
+      if (!cfg) return;
+
+      // 1. Station & Streams
+      if (cfg.station) {
+        if (cfg.station.audioStreamUrl) {
+          AUDIO_STREAM_URL = cfg.station.audioStreamUrl;
+          if (audioEl && isPlaying) {
+            audioEl.src = AUDIO_STREAM_URL;
+            audioEl.play().catch(e => console.warn(e));
+          }
+        }
+        if (cfg.station.tvStreamUrl) {
+          TV_STREAM_URL = cfg.station.tvStreamUrl;
+        }
+
+        if (cfg.station.name) {
+          const topName = document.getElementById('topbar-station-name');
+          if (topName) topName.textContent = cfg.station.name.toUpperCase();
+          document.title = cfg.station.name + ' • ' + (cfg.station.frequency || 'Rádio Web') + ' Ao Vivo';
+        }
+
+        if (cfg.station.frequency || cfg.station.city) {
+          const topSub = document.getElementById('topbar-station-sub');
+          if (topSub) topSub.textContent = (cfg.station.frequency || 'Rádio Web') + ' • ' + (cfg.station.city || 'Caldas Novas / GO');
+          
+          const centerFreq = document.getElementById('center-freq-title');
+          if (centerFreq) {
+            const freqStr = (cfg.station.frequency || 'RÁDIO WEB').toUpperCase();
+            if (freqStr.includes(' ')) {
+              const parts = freqStr.split(' ');
+              const first = parts.slice(0, -1).join(' ');
+              const last = parts[parts.length - 1];
+              centerFreq.innerHTML = first + ' <span>' + last + '</span>';
+            } else {
+              centerFreq.innerHTML = 'RÁDIO <span>' + freqStr + '</span>';
+            }
+          }
+        }
+
+        if (cfg.station.slogan) {
+          const centerSlogan = document.getElementById('center-slogan-sub');
+          if (centerSlogan) centerSlogan.textContent = cfg.station.slogan + ' • Transmissão Oficial';
+        }
+
+        if (cfg.station.logoUrl) {
+          const topLogo = document.getElementById('topbar-logo-img');
+          if (topLogo) topLogo.src = cfg.station.logoUrl;
+          const centerLogo = document.getElementById('center-logo-img');
+          if (centerLogo) centerLogo.src = cfg.station.logoUrl;
+        }
+
+        if (cfg.station.backgroundUrl) {
+          const bg = document.getElementById('cinematic-bg');
+          if (bg) {
+            bg.style.backgroundImage = "url('" + cfg.station.backgroundUrl + "')";
+          }
+        }
+      }
+
+      // 2. Donation / PIX
+      if (cfg.donation) {
+        const projName = document.getElementById('pix-project-name');
+        if (projName && cfg.donation.projectName) projName.textContent = cfg.donation.projectName;
+
+        const projDesc = document.getElementById('pix-project-desc');
+        if (projDesc && cfg.donation.description) projDesc.textContent = cfg.donation.description;
+
+        const keyBadge = document.getElementById('pix-key-badge');
+        if (keyBadge && cfg.donation.pixKeyType) keyBadge.textContent = cfg.donation.pixKeyType;
+
+        const keyText = document.getElementById('pix-key-text');
+        if (keyText && cfg.donation.pixKey) keyText.textContent = cfg.donation.pixKey;
+
+        const entityText = document.getElementById('pix-entity-text');
+        if (entityText && cfg.donation.beneficiary) entityText.textContent = cfg.donation.beneficiary;
+
+        const qrImg = document.getElementById('pix-qr-img');
+        if (qrImg && cfg.donation.qrCodeUrl) qrImg.src = cfg.donation.qrCodeUrl;
+      }
+
+      // 3. Promotion
+      if (cfg.promotion) {
+        const promoCard = document.getElementById('promo-cockpit-card');
+        if (promoCard) {
+          if (cfg.promotion.active) {
+            promoCard.style.display = 'block';
+            const titleEl = document.getElementById('promo-title-text');
+            if (titleEl && cfg.promotion.title) titleEl.textContent = cfg.promotion.title;
+            const descEl = document.getElementById('promo-desc-text');
+            if (descEl && cfg.promotion.description) descEl.textContent = cfg.promotion.description;
+            if (cfg.promotion.whatsappText) PROMO_WPP_MSG = cfg.promotion.whatsappText;
+          } else {
+            promoCard.style.display = 'none';
+          }
+        }
+      }
+
+      // 4. Contacts / Social
+      if (cfg.contacts) {
+        if (cfg.contacts.whatsapp) {
+          WHATSAPP_PHONE = cfg.contacts.whatsapp.replace(/\D/g, '');
+          const wppRow = document.getElementById('social-row-wpp');
+          if (wppRow) wppRow.href = 'https://wa.me/' + WHATSAPP_PHONE + '?text=' + encodeURIComponent('Olá Rádio Vivam! Estou ouvindo a rádio pelo site!');
+        }
+        if (cfg.contacts.whatsappDisplay) {
+          const wppDesc = document.getElementById('social-desc-wpp');
+          if (wppDesc) wppDesc.textContent = cfg.contacts.whatsappDisplay + ' • No Ar';
+        }
+
+        if (cfg.contacts.instagram) {
+          const instaRow = document.getElementById('social-row-insta');
+          if (instaRow) instaRow.href = cfg.contacts.instagram;
+        }
+        if (cfg.contacts.instagramDisplay) {
+          const instaDesc = document.getElementById('social-desc-insta');
+          if (instaDesc) instaDesc.textContent = cfg.contacts.instagramDisplay;
+        }
+
+        if (cfg.contacts.youtube) {
+          const ytRow = document.getElementById('social-row-yt');
+          if (ytRow) ytRow.href = cfg.contacts.youtube;
+        }
+        if (cfg.contacts.youtubeDisplay) {
+          const ytDesc = document.getElementById('social-desc-yt');
+          if (ytDesc) ytDesc.textContent = cfg.contacts.youtubeDisplay;
+        }
+
+        if (cfg.contacts.facebook) {
+          const fbRow = document.getElementById('social-row-fb');
+          if (fbRow) fbRow.href = cfg.contacts.facebook;
+        }
+        if (cfg.contacts.facebookDisplay) {
+          const fbDesc = document.getElementById('social-desc-fb');
+          if (fbDesc) fbDesc.textContent = cfg.contacts.facebookDisplay;
+        }
+      }
+
+      // 5. Schedule
+      if (cfg.schedule && Array.isArray(cfg.schedule) && cfg.schedule.length > 0) {
+        SCHEDULE = cfg.schedule;
+        renderSchedule();
+      }
+    }
+
+    function loadAndApplyConfig() {
+      // 1. Injected directly into HTML (e.g. from Admin export)
+      if (window.VIVAM_INJECTED_CONFIG) {
+        applyConfig(window.VIVAM_INJECTED_CONFIG);
+        return;
+      }
+
+      // 2. LocalStorage (saved from admin on same browser/host)
+      const saved = localStorage.getItem('vivam_config');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          applyConfig(parsed);
+          return;
+        } catch (e) {
+          console.warn('Erro ao carregar do localStorage', e);
+        }
+      }
+
+      // 3. Fallback: fetch config.json
+      fetch('config.json')
+        .then(r => r.json())
+        .then(data => {
+          applyConfig(data);
+        })
+        .catch(err => {
+          console.log('Usando configurações padrão incorporadas:', err);
+        });
+    }
+
+    function participarPromocaoWhatsApp() {
+      const text = '🎁 *PARTICIPAÇÃO NA PROMOÇÃO - RÁDIO VIVAM*\n\n' + PROMO_WPP_MSG + '\n\n_Enviado pelo App da Rádio_';
+      window.open('https://wa.me/' + WHATSAPP_PHONE + '?text=' + encodeURIComponent(text), '_blank');
+      showToast('Abrindo WhatsApp para participar!');
+    }
+
+    // ── INITIAL SETUP ──
+    window.addEventListener('DOMContentLoaded', () => {
+      loadAndApplyConfig();
+      renderSchedule();
+      const savedVol = localStorage.getItem('vivam_vol') || 85;
+      volInput.value = savedVol;
+      handleVolumeChange(savedVol);
+
+      window.addEventListener('resize', () => {
+        updateKnobPosition(volInput.value);
+        resizeRadialCanvas();
+      });
+
+      // Sincronização em tempo real caso o painel admin esteja aberto em outra aba
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'vivam_config') {
+          loadAndApplyConfig();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

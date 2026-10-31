@@ -1,0 +1,73 @@
+{
+  "station": {
+    "name": "Rádio Vivam",
+    "frequency": "Rádio Web",
+    "slogan": "Vidas em Avivamento",
+    "city": "Caldas Novas / GO",
+    "audioStreamUrl": "https://stm4.audiplushd.com.br:7370/stream",
+    "tvStreamUrl": "https://stmv1.liveplushd.com.br/tvvivam/tvvivam/playlist.m3u8",
+    "logoUrl": "assets/logo_original.png",
+    "backgroundUrl": "assets/vivam_custom_bg.jpg"
+  },
+  "donation": {
+    "projectName": "Projeto Bíblia Sagrada para Todos",
+    "description": "Ajude a Rádio Vivam a levar a Palavra de Deus e Bíblias para famílias e comunidades que mais precisam. Sua contribuição voluntária sustenta essa missão!",
+    "pixKeyType": "Telefone / WhatsApp",
+    "pixKey": "64992432520",
+    "beneficiary": "Rádio Vivam • Vidas em Avivamento",
+    "qrCodeUrl": "assets/pix_qr.svg"
+  },
+  "promotion": {
+    "active": true,
+    "title": "Sorteio Especial Bíblia de Estudos",
+    "description": "Participe do nosso sorteio mensal mandando sua mensagem de fé no WhatsApp da rádio com seu nome e cidade!",
+    "whatsappText": "Quero participar da promoção da Rádio Vivam!"
+  },
+  "contacts": {
+    "whatsapp": "5564992432520",
+    "whatsappDisplay": "(64) 99243-2520",
+    "instagram": "https://www.instagram.com/podcastdesafiosmissionarios/",
+    "instagramDisplay": "@podcastdesafiosmissionarios",
+    "youtube": "https://www.youtube.com/channel/UCCU71_q3RloX7rGLSUjCneg",
+    "youtubeDisplay": "Canal no YouTube",
+    "facebook": "https://www.facebook.com/vidasemavivamento?locale=pt_BR",
+    "facebookDisplay": "Facebook Oficial"
+  },
+  "schedule": [
+    {
+      "start": 5,
+      "end": 8,
+      "name": "Madrugada com Cristo",
+      "host": "Vigília, Oração & Clamor",
+      "desc": "Iniciando o dia em oração e louvores profundos de intercessão."
+    },
+    {
+      "start": 8,
+      "end": 12,
+      "name": "Manhã de Avivamento",
+      "host": "Palavra de Fé & Reflexões",
+      "desc": "As melhores mensagens bíblicas e louvores para abençoar sua manhã."
+    },
+    {
+      "start": 12,
+      "end": 16,
+      "name": "Conexão Missionária",
+      "host": "Desafios & Notícias do Reino",
+      "desc": "Testemunhos, evangelismo no campo e músicas que edificam."
+    },
+    {
+      "start": 16,
+      "end": 20,
+      "name": "Tarde Abençoada",
+      "host": "Participação ao Vivo dos Ouvintes",
+      "desc": "Pedidos musicais, orações ao vivo e os louvores mais tocados."
+    },
+    {
+      "start": 20,
+      "end": 24,
+      "name": "Noite de Paz & Louvor",
+      "host": "Voz da Esperança",
+      "desc": "Encerrando o dia com paz espiritual, testemunhos e adoração."
+    }
+  ]
+}

@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo • Rádio Vivam</title>
+
+  <!-- Google Fonts: Space Grotesk & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-main: #0a0808;
+      --bg-sidebar: #120e0d;
+      --bg-card: #181312;
+      --bg-card-hover: #221b19;
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      
+      --primary-orange: #ff5500;
+      --primary-amber: #ff9100;
+      --primary-glow: rgba(255, 85, 0, 0.4);
+
+      --text-main: #ffffff;
+      --text-muted: #9e9ea7;
+      --text-dim: #63636e;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* SIDEBAR */
+    .admin-sidebar {
+      width: 280px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 18px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .admin-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .brand-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--primary-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #fff;
+      overflow: hidden;
+    }
+    .brand-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .brand-info h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .brand-info span {
+      font-size: 11px;
+      color: var(--primary-amber);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-tabs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 20px;
+      flex: 1;
+    }
+    .nav-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      text-align: left;
+    }
+    .nav-tab-btn i {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      color: var(--text-dim);
+    }
+    .nav-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+    .nav-tab-btn.active {
+      background: rgba(255, 85, 0, 0.14);
+      border-color: rgba(255, 85, 0, 0.35);
+      color: #fff;
+    }
+    .nav-tab-btn.active i {
+      color: var(--primary-orange);
+    }
+
+    .sidebar-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 20px;
+    }
+    .btn-view-live {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 11px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+    .btn-view-live:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: var(--text-muted);
+    }
+
+    /* MAIN CONTENT */
+    .admin-main {
+      flex: 1;
+      min-width: 0;
+      padding: 32px 40px;
+      max-width: 1000px;
+      overflow-y: auto;
+    }
+
+    .main-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      gap: 20px;
+    }
+    .main-header-info h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .main-header-info p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .action-header-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-primary-save {
+      background: linear-gradient(135deg, var(--primary-orange), #e64a00);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 12px 22px;
+      font-size: 13px;
+      font-weight: 800;
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px var(--primary-glow);
+      transition: all 0.2s ease;
+    }
+    .btn-primary-save:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
+
+    /* PANELS (TABS) */
+    .tab-content-panel {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      animation: fadeIn 0.25s ease;
+    }
+    .tab-content-panel.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .form-card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+    .form-card-title i {
+      color: var(--primary-orange);
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 680px) {
+      .form-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .field-input {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .field-input:focus {
+      border-color: var(--primary-orange);
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.15);
+    }
+    .field-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* IMAGE UPLOADER PREVIEW BOX */
+    .image-preview-picker {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+    }
+    .preview-box-thumb {
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      background: #000;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-box-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .preview-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .btn-file-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      width: fit-content;
+      transition: background 0.2s ease;
+    }
+    .btn-file-select:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+    .preset-btns-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-preset {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .btn-preset:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    /* SCHEDULE EDITOR */
+    .schedule-editor-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .schedule-editor-item {
+      display: grid;
+      grid-template-columns: 80px 80px 1fr 1fr 40px;
+      gap: 10px;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+    @media (max-width: 768px) {
+      .schedule-editor-item {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .btn-del-row {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-add-schedule {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px dashed var(--border-subtle);
+      color: #fff;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* TOAST FEEDBACK */
+    .admin-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1c1514;
+      border: 1px solid var(--primary-orange);
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 99999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .admin-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div>
+      <div class="admin-brand">
+        <div class="brand-avatar">
+          <img src="assets/logo_original.png" alt="Rádio Vivam" onerror="this.src='assets/logo_modern_vivam.svg'">
+        </div>
+        <div class="brand-info">
+          <h2>Rádio Vivam</h2>
+          <span>Painel de Controle</span>
+        </div>
+      </div>
+
+      <!-- NAV TABS -->
+      <nav class="nav-tabs-list">
+        <button class="nav-tab-btn active" onclick="switchAdminTab('tab-general')">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Geral & Identidade</span>
+        </button>
+
+        <button class="nav-tab-btn" onclick="switchAdminTab('tab-donation')">
+          <i class="fa-solid fa-heart"></i>
+          <span>Campanha & Doações (PIX)</span>
+        </button>
+
+        <button class="nav-tab-btn" onclick="switchAdminTab('tab-promo')">
+          <i class="fa-solid fa-gift"></i>
+          <span>Promoções do Mês</span>
+        </button>
+
+        <button class="nav-tab-btn" onclick="switchAdminTab('tab-schedule')">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Grade de Programação</span>
+        </button>
+
+        <button class="nav-tab-btn" onclick="switchAdminTab('tab-contacts')">
+          <i class="fa-solid fa-address-book"></i>
+          <span>Contatos & Redes</span>
+        </button>
+
+        <button class="nav-tab-btn" onclick="switchAdminTab('tab-export')">
+          <i class="fa-solid fa-file-code"></i>
+          <span>Exportar para Hospedagem</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- SIDEBAR FOOTER -->
+    <div class="sidebar-footer">
+      <a href="gerador.html" target="_blank" class="btn-view-live" style="background: rgba(255,145,0,0.12); border-color: rgba(255,145,0,0.3); color: var(--primary-amber); margin-bottom: 8px;">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>Gerador de Apps PWA</span>
+      </a>
+      <a href="index.html" target="_blank" class="btn-view-live">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        <span>Ver Rádio ao Vivo</span>
+      </a>
+      <p style="font-size: 10px; color: var(--text-dim); text-align: center;">
+        Versão 3.0 • Rádio Vivam & VIVAMHOSTING
+      </p>
+    </div>
+  </aside>
+
+  <!-- MAIN DASHBOARD CONTENT -->
+  <main class="admin-main">
+
+    <!-- HEADER TITLE & GLOBAL SAVE -->
+    <header class="main-header">
+      <div class="main-header-info">
+        <h1 id="panel-title-text">Geral & Identidade da Rádio</h1>
+        <p>Altere as informações abaixo e clique em Salvar para atualizar o aplicativo automaticamente.</p>
+      </div>
+
+      <div class="action-header-group">
+        <button class="btn-primary-save" onclick="salvarConfiguracoesCompletas()">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Salvar Alterações</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- TAB 1: GERAL & IDENTIDADE (LOGO, FUNDO, FREQUÊNCIA, STREAMING) -->
+    <section class="tab-content-panel active" id="tab-general">
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-solid fa-radio"></i> Dados da Estação</h3>
+        
+        <div class="form-grid-2">
+          <div class="input-field-group">
+            <label class="field-label">Nome da Rádio</label>
+            <input type="text" class="field-input" id="cfg-station-name" value="Rádio Vivam">
+          </div>
+          <div class="input-field-group">
+            <label class="field-label">Frequência</label>
+            <input type="text" class="field-input" id="cfg-station-freq" value="Rádio Web">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="input-field-group">
+            <label class="field-label">Slogan / Subtítulo</label>
+            <input type="text" class="field-input" id="cfg-station-slogan" value="Vidas em Avivamento">
+          </div>
+          <div class="input-field-group">
+            <label class="field-label">Cidade / Estado</label>
+            <input type="text" class="field-input" id="cfg-station-city" value="Caldas Novas / GO">
+          </div>
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label">Link do Streaming de Áudio (Icecast / Shoutcast)</label>
+          <input type="text" class="field-input" id="cfg-audio-url" value="https://stm4.audiplushd.com.br:7370/stream">
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label">Link do Streaming da TV Vivam (HLS .m3u8)</label>
+          <input type="text" class="field-input" id="cfg-tv-url" value="https://stmv1.liveplushd.com.br/tvvivam/tvvivam/playlist.m3u8">
+        </div>
+      </div>
+
+      <!-- FOTO DE FUNDO -->
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-solid fa-image"></i> Tela de Fundo (Pano de Fundo)</h3>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          Escolha uma das imagens predefinidas da rádio ou envie uma foto do seu computador.
+        </p>
+
+        <div class="image-preview-picker">
+          <div class="preview-box-thumb">
+            <img src="assets/vivam_custom_bg.jpg" id="preview-bg-img" alt="Fundo Atual">
+          </div>
+          <div class="preview-info">
+            <label class="btn-file-select">
+              <i class="fa-solid fa-upload"></i> Escolher Imagem do Computador
+              <input type="file" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'preview-bg-img', 'cfg-bg-url')">
+            </label>
+            <input type="hidden" id="cfg-bg-url" value="assets/vivam_custom_bg.jpg">
+            
+            <div class="preset-btns-row">
+              <span style="font-size: 11px; color: var(--text-dim);">Opções prontas:</span>
+              <button class="btn-preset" onclick="setPresetBg('assets/vivam_custom_bg.jpg')">Silhueta Estúdio Dourado (Exclusivo)</button>
+              <button class="btn-preset" onclick="setPresetBg('assets/ambient_backdrop.jpg')">Sunset Cálido</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOGOMARCA -->
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-solid fa-shield-halved"></i> Logomarca do Centro</h3>
+        <div class="image-preview-picker">
+          <div class="preview-box-thumb">
+            <img src="assets/logo_original.png" id="preview-logo-img" alt="Logo Atual">
+          </div>
+          <div class="preview-info">
+            <label class="btn-file-select">
+              <i class="fa-solid fa-upload"></i> Escolher Nova Logo do Computador
+              <input type="file" accept="image/*" style="display:none;" onchange="handleImageUpload(event, 'preview-logo-img', 'cfg-logo-url')">
+            </label>
+            <input type="hidden" id="cfg-logo-url" value="assets/logo_original.png">
+            
+            <div class="preset-btns-row">
+              <button class="btn-preset" onclick="setPresetLogo('assets/logo_original.png')">Logo Clássica da Rádio</button>
+              <button class="btn-preset" onclick="setPresetLogo('assets/logo_modern_vivam.svg')">Nova Logo Vetorial</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: DOAÇÕES & CAMPANHA (PROJETO BÍBLIA SAGRADA PARA TODOS) -->
+    <section class="tab-content-panel" id="tab-donation">
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-solid fa-hand-holding-heart"></i> Projeto de Doação Atual</h3>
+        
+        <div class="input-field-group">
+          <label class="field-label">Nome do Projeto / Campanha</label>
+          <input type="text" class="field-input" id="cfg-proj-name" value="Projeto Bíblia Sagrada para Todos">
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label">Descrição da Campanha e Objetivo</label>
+          <textarea class="field-input field-textarea" id="cfg-proj-desc">Ajude a Rádio Vivam a levar a Palavra de Deus e Bíblias para famílias e comunidades que mais precisam. Sua contribuição voluntária sustenta essa missão!</textarea>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-solid fa-qrcode"></i> Dados para Doação (PIX)</h3>
+
+        <div class="form-grid-2">
+          <div class="input-field-group">
+            <label class="field-label">Tipo de Chave PIX</label>
+            <input type="text" class="field-input" id="cfg-pix-type" value="Telefone / WhatsApp">
+          </div>
+          <div class="input-field-group">
+            <label class="field-label">Chave PIX</label>
+            <input type="text" class="field-input" id="cfg-pix-key" value="64992432520">
+          </div>
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label">Nome do Favorecido / Razão Social</label>
+          <input type="text" class="field-input" id="cfg-pix-beneficiary" value="Rádio Vivam • Vidas em Avivamento">
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: PROMOÇÕES DO MÊS -->
+    <section class="tab-content-panel" id="tab-promo">
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-solid fa-gift"></i> Campanha ou Sorteio Ativo</h3>
+
+        <div class="input-field-group">
+          <label class="field-label">Título da Promoção</label>
+          <input type="text" class="field-input" id="cfg-promo-title" value="Sorteio Especial Bíblia de Estudos">
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label">Descrição & Regras do Sorteio</label>
+          <textarea class="field-input field-textarea" id="cfg-promo-desc">Participe do nosso sorteio mensal mandando sua mensagem de fé no WhatsApp da rádio com seu nome e cidade!</textarea>
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label">Mensagem Pronta para WhatsApp</label>
+          <input type="text" class="field-input" id="cfg-promo-wpp-msg" value="Quero participar da promoção da Rádio Vivam!">
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: GRADE DE PROGRAMAÇÃO -->
+    <section class="tab-content-panel" id="tab-schedule">
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-solid fa-clock"></i> Horários e Programas do Dia</h3>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          Edite os horários de início e término de cada programa. O site identifica automaticamente qual está no ar!
+        </p>
+
+        <div class="schedule-editor-list" id="schedule-editor-container">
+          <!-- Populated by JS -->
+        </div>
+
+        <button class="btn-add-schedule" onclick="adicionarNovoPrograma()">
+          <i class="fa-solid fa-plus"></i> Adicionar Mais um Programa
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 5: CONTATOS & REDES SOCIAIS -->
+    <section class="tab-content-panel" id="tab-contacts">
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-brands fa-whatsapp"></i> WhatsApp do Locutor</h3>
+
+        <div class="form-grid-2">
+          <div class="input-field-group">
+            <label class="field-label">Número com DDD (Apenas dígitos)</label>
+            <input type="text" class="field-input" id="cfg-wpp-num" value="5564992432520">
+          </div>
+          <div class="input-field-group">
+            <label class="field-label">Exibição na Tela</label>
+            <input type="text" class="field-input" id="cfg-wpp-display" value="(64) 99243-2520">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-solid fa-share-nodes"></i> Redes Sociais Oficiais</h3>
+
+        <div class="input-field-group">
+          <label class="field-label">Link do Instagram</label>
+          <input type="text" class="field-input" id="cfg-insta-url" value="https://www.instagram.com/podcastdesafiosmissionarios/">
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label">Link do Canal no YouTube</label>
+          <input type="text" class="field-input" id="cfg-yt-url" value="https://www.youtube.com/channel/UCCU71_q3RloX7rGLSUjCneg">
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label">Link da Página no Facebook</label>
+          <input type="text" class="field-input" id="cfg-fb-url" value="https://www.facebook.com/vidasemavivamento?locale=pt_BR">
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: EXPORTAR PARA A HOSPEDAGEM (FACILITADOR PARA O PAI) -->
+    <section class="tab-content-panel" id="tab-export">
+      <div class="form-card">
+        <h3 class="form-card-title"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar na Hospedagem (Sem complicação)</h3>
+        
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+          Quando o senhor terminar de configurar as imagens, PIX e programas, clique em um dos botões abaixo para colocar no ar na sua hospedagem da forma mais simples possível:
+        </p>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn-primary-save" onclick="baixarArquivoHtmlAtualizado()">
+            <i class="fa-solid fa-download"></i> Baixar Arquivo index.html Atualizado
+          </button>
+          <button class="btn-view-live" onclick="copiarCodigoHtmlParaHospedagem()">
+            <i class="fa-regular fa-copy"></i> Copiar Código Inteiro para Colar no TextEdit
+          </button>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.4); border-radius: 12px; padding: 16px; border: 1px solid var(--border-subtle); margin-top: 10px;">
+          <h4 style="font-size: 13px; margin-bottom: 6px; color: var(--primary-amber);">Instruções Rápidas:</h4>
+          <ol style="font-size: 12px; color: var(--text-muted); padding-left: 20px; line-height: 1.6;">
+            <li>Clique em <strong>"Baixar Arquivo index.html Atualizado"</strong>.</li>
+            <li>Abra o painel da sua hospedagem (onde o senhor já cola no TextEdit).</li>
+            <li>Substitua o arquivo antigo pelo novo baixado. Pronto! As novas configurações, PIX e imagens já entram no ar instantaneamente!</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST FEEDBACK -->
+  <div class="admin-toast" id="admin-toast">
+    <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
+    <span id="admin-toast-text">Alterações salvas com sucesso!</span>
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT: CONTROLE DAS CONFIGURAÇÕES, SALVAMENTO & EXPORTAÇÃO
+       ========================================================================== -->
+  <script>
+    let currentConfig = null;
+
+    // ── Tab Navigation ──
+    const tabTitles = {
+      'tab-general': 'Geral & Identidade da Rádio',
+      'tab-donation': 'Campanha & Doações (PIX)',
+      'tab-promo': 'Promoções & Sorteios do Mês',
+      'tab-schedule': 'Grade de Programação',
+      'tab-contacts': 'Contatos & Redes Sociais',
+      'tab-export': 'Exportar para Hospedagem'
+    };
+
+    function switchAdminTab(tabId) {
+      document.querySelectorAll('.tab-content-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+      
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+
+      const btn = Array.from(document.querySelectorAll('.nav-tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (btn) btn.classList.add('active');
+
+      document.getElementById('panel-title-text').textContent = tabTitles[tabId] || 'Painel Administrativo';
+    }
+
+    // ── Carregar Dados Salvos (LocalStorage ou config.json) ──
+    function carregarConfiguracoesIniciais() {
+      const saved = localStorage.getItem('vivam_config');
+      if (saved) {
+        try {
+          currentConfig = JSON.parse(saved);
+          preencherCamposFormulario(currentConfig);
+          return;
+        } catch (e) { console.warn('Erro ao ler localStorage', e); }
+      }
+
+      // Buscar do arquivo config.json
+      fetch('config.json')
+        .then(r => r.json())
+        .then(data => {
+          currentConfig = data;
+          preencherCamposFormulario(data);
+        })
+        .catch(err => {
+          console.warn('Usando valores padrão:', err);
+          montarGradePadrao();
+        });
+    }
+
+    function preencherCamposFormulario(cfg) {
+      if (!cfg) return;
+
+      // Station
+      if (cfg.station) {
+        document.getElementById('cfg-station-name').value = cfg.station.name || '';
+        document.getElementById('cfg-station-freq').value = cfg.station.frequency || '';
+        document.getElementById('cfg-station-slogan').value = cfg.station.slogan || '';
+        document.getElementById('cfg-station-city').value = cfg.station.city || '';
+        document.getElementById('cfg-audio-url').value = cfg.station.audioStreamUrl || '';
+        document.getElementById('cfg-tv-url').value = cfg.station.tvStreamUrl || '';
+        
+        if (cfg.station.backgroundUrl) {
+          document.getElementById('cfg-bg-url').value = cfg.station.backgroundUrl;
+          document.getElementById('preview-bg-img').src = cfg.station.backgroundUrl;
+        }
+        if (cfg.station.logoUrl) {
+          document.getElementById('cfg-logo-url').value = cfg.station.logoUrl;
+          document.getElementById('preview-logo-img').src = cfg.station.logoUrl;
+        }
+      }
+
+      // Donation
+      if (cfg.donation) {
+        document.getElementById('cfg-proj-name').value = cfg.donation.projectName || '';
+        document.getElementById('cfg-proj-desc').value = cfg.donation.description || '';
+        document.getElementById('cfg-pix-type').value = cfg.donation.pixKeyType || '';
+        document.getElementById('cfg-pix-key').value = cfg.donation.pixKey || '';
+        document.getElementById('cfg-pix-beneficiary').value = cfg.donation.beneficiary || '';
+      }
+
+      // Promotion
+      if (cfg.promotion) {
+        document.getElementById('cfg-promo-title').value = cfg.promotion.title || '';
+        document.getElementById('cfg-promo-desc').value = cfg.promotion.description || '';
+        document.getElementById('cfg-promo-wpp-msg').value = cfg.promotion.whatsappText || '';
+      }
+
+      // Contacts
+      if (cfg.contacts) {
+        document.getElementById('cfg-wpp-num').value = cfg.contacts.whatsapp || '';
+        document.getElementById('cfg-wpp-display').value = cfg.contacts.whatsappDisplay || '';
+        document.getElementById('cfg-insta-url').value = cfg.contacts.instagram || '';
+        document.getElementById('cfg-yt-url').value = cfg.contacts.youtube || '';
+        document.getElementById('cfg-fb-url').value = cfg.contacts.facebook || '';
+      }
+
+      // Schedule
+      if (cfg.schedule && Array.isArray(cfg.schedule)) {
+        renderScheduleEditor(cfg.schedule);
+      } else {
+        montarGradePadrao();
+      }
+    }
+
+    // ── Grade de Programação Editor ──
+    function renderScheduleEditor(list) {
+      const container = document.getElementById('schedule-editor-container');
+      container.innerHTML = '';
+      
+      list.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'schedule-editor-item';
+        div.innerHTML = `
+          <input type="number" min="0" max="23" class="field-input" value="${item.start}" title="Hora Início" id="sched-start-${index}">
+          <input type="number" min="0" max="24" class="field-input" value="${item.end}" title="Hora Fim" id="sched-end-${index}">
+          <input type="text" class="field-input" value="${item.name}" placeholder="Nome do Programa" id="sched-name-${index}">
+          <input type="text" class="field-input" value="${item.host || ''}" placeholder="Locutor / Tema" id="sched-host-${index}">
+          <button class="btn-del-row" onclick="removerPrograma(${index})" title="Remover Programa"><i class="fa-solid fa-trash"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function montarGradePadrao() {
+      const padrao = [
+        { start: 5, end: 8, name: 'Madrugada com Cristo', host: 'Vigília, Oração & Clamor' },
+        { start: 8, end: 12, name: 'Manhã de Avivamento', host: 'Palavra de Fé & Reflexões' },
+        { start: 12, end: 16, name: 'Conexão Missionária', host: 'Desafios & Notícias do Reino' },
+        { start: 16, end: 20, name: 'Tarde Abençoada', host: 'Participação ao Vivo dos Ouvintes' },
+        { start: 20, end: 24, name: 'Noite de Paz & Louvor', host: 'Voz da Esperança' }
+      ];
+      renderScheduleEditor(padrao);
+    }
+
+    function adicionarNovoPrograma() {
+      const container = document.getElementById('schedule-editor-container');
+      const index = container.children.length;
+      const div = document.createElement('div');
+      div.className = 'schedule-editor-item';
+      div.innerHTML = `
+        <input type="number" min="0" max="23" class="field-input" value="12" title="Hora Início" id="sched-start-${index}">
+        <input type="number" min="0" max="24" class="field-input" value="14" title="Hora Fim" id="sched-end-${index}">
+        <input type="text" class="field-input" value="Novo Programa" placeholder="Nome do Programa" id="sched-name-${index}">
+        <input type="text" class="field-input" value="Louvor & Palavra" placeholder="Locutor / Tema" id="sched-host-${index}">
+        <button class="btn-del-row" onclick="this.parentElement.remove()" title="Remover"><i class="fa-solid fa-trash"></i></button>
+      `;
+      container.appendChild(div);
+    }
+
+    function removerPrograma(idx) {
+      const item = document.getElementById(`sched-start-${idx}`)?.parentElement;
+      if (item) item.remove();
+    }
+
+    // ── Presets de Imagem ──
+    function setPresetBg(url) {
+      document.getElementById('cfg-bg-url').value = url;
+      document.getElementById('preview-bg-img').src = url;
+      showToast('Pano de fundo selecionado!');
+    }
+
+    function setPresetLogo(url) {
+      document.getElementById('cfg-logo-url').value = url;
+      document.getElementById('preview-logo-img').src = url;
+      showToast('Logomarca selecionada!');
+    }
+
+    function handleImageUpload(e, imgPreviewId, hiddenInputId) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const dataUrl = evt.target.result;
+        document.getElementById(imgPreviewId).src = dataUrl;
+        document.getElementById(hiddenInputId).value = dataUrl;
+        showToast('Nova imagem carregada com sucesso!');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ── Salvar Configurações no LocalStorage e Memory ──
+    function coletarDadosDoFormulario() {
+      // Collect schedule rows
+      const scheduleItems = [];
+      const container = document.getElementById('schedule-editor-container');
+      for (let i = 0; i < container.children.length; i++) {
+        const startVal = container.children[i].querySelector('input[type="number"]:nth-child(1)')?.value || 0;
+        const endVal = container.children[i].querySelector('input[type="number"]:nth-child(2)')?.value || 0;
+        const nameVal = container.children[i].querySelector('input[type="text"]:nth-child(3)')?.value || 'Programa';
+        const hostVal = container.children[i].querySelector('input[type="text"]:nth-child(4)')?.value || '';
+
+        scheduleItems.push({
+          start: parseInt(startVal),
+          end: parseInt(endVal),
+          name: nameVal,
+          host: hostVal
+        });
+      }
+
+      return {
+        station: {
+          name: document.getElementById('cfg-station-name').value,
+          frequency: document.getElementById('cfg-station-freq').value,
+          slogan: document.getElementById('cfg-station-slogan').value,
+          city: document.getElementById('cfg-station-city').value,
+          audioStreamUrl: document.getElementById('cfg-audio-url').value,
+          tvStreamUrl: document.getElementById('cfg-tv-url').value,
+          logoUrl: document.getElementById('cfg-logo-url').value,
+          backgroundUrl: document.getElementById('cfg-bg-url').value
+        },
+        donation: {
+          projectName: document.getElementById('cfg-proj-name').value,
+          description: document.getElementById('cfg-proj-desc').value,
+          pixKeyType: document.getElementById('cfg-pix-type').value,
+          pixKey: document.getElementById('cfg-pix-key').value,
+          beneficiary: document.getElementById('cfg-pix-beneficiary').value,
+          qrCodeUrl: 'assets/pix_qr.svg'
+        },
+        promotion: {
+          active: true,
+          title: document.getElementById('cfg-promo-title').value,
+          description: document.getElementById('cfg-promo-desc').value,
+          whatsappText: document.getElementById('cfg-promo-wpp-msg').value
+        },
+        contacts: {
+          whatsapp: document.getElementById('cfg-wpp-num').value,
+          whatsappDisplay: document.getElementById('cfg-wpp-display').value,
+          instagram: document.getElementById('cfg-insta-url').value,
+          instagramDisplay: '@podcastdesafiosmissionarios',
+          youtube: document.getElementById('cfg-yt-url').value,
+          youtubeDisplay: 'Canal no YouTube',
+          facebook: document.getElementById('cfg-fb-url').value,
+          facebookDisplay: 'Facebook Oficial'
+        },
+        schedule: scheduleItems
+      };
+    }
+
+    async function salvarConfiguracoesCompletas() {
+      const config = coletarDadosDoFormulario();
+      localStorage.setItem('vivam_config', JSON.stringify(config));
+
+      // Tenta salvar diretamente no servidor caso a hospedagem tenha PHP
+      try {
+        const response = await fetch('salvar_config.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+        if (response.ok) {
+          const res = await response.json();
+          showToast('✅ Salvo no servidor com sucesso! A rádio foi atualizada.');
+          return;
+        }
+      } catch (e) {
+        // Ambiente estático sem PHP
+      }
+
+      showToast('Configurações salvas! A rádio foi atualizada.');
+    }
+
+    // ── Exportar & Baixar index.html Atualizado ──
+    function baixarArquivoHtmlAtualizado() {
+      salvarConfiguracoesCompletas();
+      const config = coletarDadosDoFormulario();
+
+      fetch('index.html')
+        .then(r => r.text())
+        .then(html => {
+          // Inject config directly into the HTML so it works even without localStorage on any server!
+          const injection = `<script>window.VIVAM_INJECTED_CONFIG = ${JSON.stringify(config)};<\/script>`;
+          const finalHtml = html.replace('</head>', `${injection}\n</head>`);
+
+          const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'index.html';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          showToast('Arquivo index.html baixado pronto para colar na hospedagem!');
+        })
+        .catch(err => {
+          alert('Erro ao gerar HTML: ' + err);
+        });
+    }
+
+    function copiarCodigoHtmlParaHospedagem() {
+      salvarConfiguracoesCompletas();
+      const config = coletarDadosDoFormulario();
+
+      fetch('index.html')
+        .then(r => r.text())
+        .then(html => {
+          const injection = `<script>window.VIVAM_INJECTED_CONFIG = ${JSON.stringify(config)};<\/script>`;
+          const finalHtml = html.replace('</head>', `${injection}\n</head>`);
+
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(finalHtml).then(() => {
+              showToast('Código copiado! Cole no TextEdit da hospedagem.');
+            });
+          }
+        });
+    }
+
+    // ── Toast System ──
+    let toastTimer = null;
+    function showToast(msg) {
+      const t = document.getElementById('admin-toast');
+      document.getElementById('admin-toast-text').textContent = msg;
+      t.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
+    }
+
+    // ── Start ──
+    window.addEventListener('DOMContentLoaded', () => {
+      carregarConfiguracoesIniciais();
+    });
+  </script>
+</body>
+</html>
