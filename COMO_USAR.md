@@ -1,60 +1,43 @@
-# 📻 Rádio Vivam & VIVAM HOSTING • Sistema Completo
+# 📻 VIVAM HOSTING • Plataforma Completa de Apps de Rádio & TV
 
-Sistema completo de transmissão, gerenciamento e geração de aplicativos PWA e players para rádios web e emissoras FM.
-
----
-
-## 🔗 Links Rápidos de Acesso Local
-
-1. 📻 **Rádio Vivam no Ar**: [http://localhost:3333/index.html](http://localhost:3333/index.html)  
-   *Player moderno com equalizador radial 360°, logo central estática, grade de programação oficial, chat e TV Vivam.*
-
-2. ⚙️ **Painel do Cliente (Admin da Rádio)**: [http://localhost:3333/admin.html](http://localhost:3333/admin.html)  
-   *Painel visual para o administrador da rádio trocar imagem de fundo, logo, PIX do projeto missionário, campanhas e grade.*
-
-3. 🚀 **Gerador de Apps & Players (Estilo Base44 Aprimorado)**: [http://localhost:3333/gerador.html](http://localhost:3333/gerador.html) *(ou [http://localhost:3333/apps.html](http://localhost:3333/apps.html))*  
-   *A plataforma completa para criar, salvar e gerar aplicativos PWA e códigos de embed para clientes e outras rádios!*
+Este ecossistema foi construído para atender exatamente às necessidades do seu pai:
+1. **Painel Master (Dashboard SaaS)** para ele criar, gerenciar e armazenar todos os aplicativos de rádios e TV criados.
+2. **Painel Administrativo do Cliente com Login e Senha** para o cliente gerenciar a própria rádio sem precisar de ajuda técnica.
+3. **Aplicativo do Ouvinte (Player PWA)** ultra-moderno com equalizador radial 360°, logo estática no centro, TV ao vivo, PIX e grade de horários.
 
 ---
 
-## 🛠️ O Novo Gerador de Apps (`gerador.html`): O que foi Corrigido em Relação ao Base44
+## 🔗 Links de Acesso Local no Navegador
 
-Criamos uma réplica profissional da página `/apps` da Base44, resolvendo todos os problemas técnicos e operacionais que travavam o negócio do seu pai:
-
-### 1. Fim do Erro 403 Forbidden!
-- **O problema antigo no Base44**: O código gerado fazia requisições para a API do Base44 para buscar o PIX, doações e promoções. Como o Base44 exige autenticação, quando o cliente colocava o código na hospedagem dele (`app.noar.net.br` ou cPanel), retornava erro 403 e ficava tudo em branco.
-- **Como está agora**: O gerador embuti todos os dados de forma **100% auto-contida e auto-suficiente**. Não depende de nenhum servidor intermediário e nunca dá erro 403!
-
-### 2. Simulador de Smartphone em Tempo Real
-- Na coluna da direita, há um mockup realista de smartphone (com Dynamic Island e vidro).
-- Qualquer letra que você digitar no formulário da esquerda, ou qualquer cor que trocar, **o player dentro do celular atualiza instantaneamente**!
-- Você pode dar Play e ouvir o streaming tocando ao vivo dentro da moldura do celular!
-
-### 3. Upload Direto de Fotos do Computador
-- Em vez de obrigar o cliente ou seu pai a caçar links externos de imagens na internet, agora basta clicar em **"Escolher Imagem"** ou **"Escolher Logo"** e selecionar a foto do computador. O sistema converte automaticamente em Base64 e já salva tudo dentro do player!
-
-### 4. Gerenciador de Clientes (Rádios Salvas)
-- O seu pai pode salvar quantas rádios quiser (Rádio Vivam, Rádio Gospel, Rádio da Igreja X...).
-- Todas ficam guardadas na aba **"Rádios Salvas"**. Ele pode alternar entre clientes, carregar, editar, duplicar ou excluir com 1 clique!
-- Possui ferramenta de **Exportar / Importar Backup JSON**, para ele nunca perder a lista de rádios salvas.
-
-### 5. Exportação em 1 Clique para a Hospedagem
-- **"Copiar Embed (Iframe)"**: Para quem quer incorporar o player em um site WordPress ou portal.
-- **"Baixar index.html Pronto"**: Gera o arquivo completo pronto para subir na hospedagem do cliente.
-- **"Abrir em Nova Aba"**: Abre o player em tela cheia para testar antes de entregar ao cliente.
+- 🚀 **Painel Master do Pai (Dashboard & Criador)**: [http://localhost:3333/gerador.html](http://localhost:3333/gerador.html)
+- ⚙️ **Painel Administrativo do Cliente (Com Login)**: [http://localhost:3333/admin.html](http://localhost:3333/admin.html)
+- 📻 **Aplicativo da Rádio Vivam no Ar**: [http://localhost:3333/index.html](http://localhost:3333/index.html)
 
 ---
 
-## 📂 Arquivos no Projeto
+## 🛠️ Como Funciona o Sistema Completo
 
-```
-radio-vivam/
-├── index.html              <- Aplicativo Web da Rádio Vivam (Logo estática + Radial 360°)
-├── admin.html              <- Painel Administrativo para a Rádio Vivam
-├── gerador.html            <- NOVO: Gerador de Apps PWA & Embeds para Clientes
-├── apps.html               <- Atalho para o gerador (rota /apps)
-├── config.json             <- Configurações padrão
-├── salvar_config.php       <- Script de salvamento automático no servidor
-├── COMO_USAR.md            <- Manual explicativo
-└── assets/                 <- Imagens, logos e QR Codes
-```
+### 1. Painel Master do seu Pai (`gerador.html`)
+- **Dashboard Geral**: Mostra cards com o total de rádios criadas, transmissões de áudio ativas, canais de TV e clientes cadastrados.
+- **Gerenciador de Aplicativos**: Cada rádio criada fica guardada com seu logo, nome, cidade e **dados de acesso (login e senha do cliente)**.
+- **Botão "Acesso WhatsApp"**: Copia uma mensagem pronta e formatada com os links e credenciais para ele enviar direto no WhatsApp do cliente com 1 clique!
+- **Botão "Baixar Pacote ZIP"**: Gera na hora um arquivo `.zip` com o `index.html` (player) e o `admin.html` (painel do cliente já configurado com a senha dele).
+- **Criador com Simulador de Smartphone**: Ele pode criar novas rádios com prévia em tempo real dentro de um iPhone na tela.
+
+### 2. Painel Administrativo do Cliente (`admin.html`)
+- **Protegido por Login e Senha**: Ao abrir, exige o usuário e senha definidos pelo seu pai.
+  *(Padrão inicial da Rádio Vivam: Usuário `admin` | Senha `vivam123`)*.
+- **Área de Gestão do Cliente**:
+  - Trocar a **Logomarca** (upload direto do computador).
+  - Trocar o **Pano de Fundo (Wallpaper)** com fotos da igreja ou rádio.
+  - Alterar o **Streaming de Áudio e Canal de TV**.
+  - Gerenciar a **Campanha de Doação / PIX** ("Projeto Bíblia Sagrada para Todos").
+  - Configurar **WhatsApp, Instagram, YouTube e Facebook**.
+  - Editar os horários e nomes da **Grade de Programação**.
+  - Botão de **Logout / Sair** no rodapé.
+
+### 3. Aplicativo dos Ouvintes (`index.html`)
+- Design Apple Obsidian Dark.
+- **Logo central estática e fixa** com o efeito de retângulos radiais em 360° no fundo reagindo ao som.
+- Player de TV ao vivo embutido em card dedicado.
+- Mural de recados e pedidos de oração direto no WhatsApp.
