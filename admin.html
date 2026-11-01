@@ -843,6 +843,13 @@
 
     // ── Carregar Dados Salvos (LocalStorage ou config.json) ──
     function carregarConfiguracoesIniciais() {
+      if (window.VIVAM_INJECTED_CONFIG) {
+        currentConfig = window.VIVAM_INJECTED_CONFIG;
+        preencherCamposFormulario(currentConfig);
+        verificarSessaoCliente();
+        return;
+      }
+
       const saved = localStorage.getItem('vivam_config');
       if (saved) {
         try {
