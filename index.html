@@ -1099,7 +1099,7 @@
         </div>
         <div class="brand-text">
           <h1 id="topbar-station-name">RÁDIO VIVAM</h1>
-          <p id="topbar-station-sub">Rádio Web • Caldas Novas / GO</p>
+          <p id="topbar-station-sub">Rádio Web • Ao Vivo na Web</p>
         </div>
       </a>
 
@@ -1387,7 +1387,7 @@
             <div class="chat-feed-bubble">
               <div class="chat-feed-meta">
                 <span class="chat-author-name">Pastora Elizete</span>
-                <span class="chat-city-name">Caldas Novas - GO</span>
+                <span class="chat-city-name">São Paulo - SP</span>
               </div>
               <p class="chat-body-text">Ouvindo com toda a família. Toca 'Bondade de Deus' para nós!</p>
             </div>
@@ -1590,9 +1590,9 @@
     function setupMediaSession() {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: 'Rádio Vivam • 94.7 FM',
+          title: 'Rádio Vivam • Rádio Web',
           artist: 'Vidas em Avivamento',
-          album: 'Caldas Novas / GO',
+          album: 'Ao Vivo na Web',
           artwork: [
             { src: 'assets/logo_original.png', sizes: '300x300', type: 'image/png' },
             { src: 'assets/logo_modern_vivam.svg', sizes: '512x512', type: 'image/svg+xml' }
@@ -1906,7 +1906,7 @@
 
         if (cfg.station.frequency || cfg.station.city) {
           const topSub = document.getElementById('topbar-station-sub');
-          if (topSub) topSub.textContent = (cfg.station.frequency || 'Rádio Web') + ' • ' + (cfg.station.city || 'Caldas Novas / GO');
+          if (topSub) topSub.textContent = (cfg.station.frequency || 'Rádio Web') + ' • ' + (cfg.station.city || 'Ao Vivo na Web');
           
           const centerFreq = document.getElementById('center-freq-title');
           if (centerFreq) {
